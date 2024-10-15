@@ -1,0 +1,33 @@
+{
+  "name": "planify-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.1",
+    "planify-api": "file:"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^22.7.5",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "commands": {
+    "start": "docker-compose up",
+    "startDetached": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker logs planify-api-app-1",
+    "mongoShell": "docker exec -it planify-api-mongo-1 mongo"
+  }
+}

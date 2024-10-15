@@ -1,0 +1,37 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker files
+*.dockerfile
+docker-compose.override.yml
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+*.lcov
+
+# Build output
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.tgz
+*.zip
