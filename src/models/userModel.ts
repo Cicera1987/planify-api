@@ -1,16 +1,7 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model} from 'mongoose';
+import { IUser } from 'src/types/userTypes';
 import { v4 as uuidv4 } from 'uuid';
 
-interface IUser extends Document {
-    id: string;
-    name: string;
-    email: string;
-    specialty?: string;
-    whatsapp?: string;
-    isActive: boolean;
-}
-
-// Definição do esquema
 const userSchema = new Schema<IUser>({
     id: {
         type: String,
