@@ -6,31 +6,34 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
 
-    // Saida do código
+    // Saída do código
     "target": "ES2020",
     "outDir": "./dist",
-    "strict": false,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
 
-    // decoração e Metadados
+    // Decorações e Metadados
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
     // Verificação de tipos (TS)
+    "strict": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
     "allowJs": true,
 
     // Resolução de caminho e tipos
     "baseUrl": "./",
+    "paths": {
+      "*": ["src/*"]
+    },
     "typeRoots": ["./node_modules/@types", "./src/types"],
 
     // Outras operações e configurações
-    "removeComments": true,
+    "removeComments": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

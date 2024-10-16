@@ -1,21 +1,21 @@
 version: '3.8'
 
 services:
-  app:
+  planify-api-app:
     build: .
     ports:
-      - "5001:5000"
-    volumes:
-      - .:/usr/src/app
+      - "5000:5000"
+    depends_on:
+      - planify-api-mongo
     environment:
-      - MONGODB_URI=mongodb://mongo:27017/planify
-    
-  mongo:
+      - MONGODB_URI=mongodb://planify-api-mongo:27017/planify
+
+  planify-api-mongo:
     image: mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
+      - mongo_data:/data/db
 
 volumes:
-  mongodb_data:
+  mongo_data:
