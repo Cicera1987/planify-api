@@ -29,6 +29,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "mongoose": "^8.7.1",
+    "planify-api": "file:",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "uuid": "^10.0.0"
@@ -72,6 +73,14 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "commands": {
+      "start": "docker-compose up",
+      "startDetached": "docker-compose up -d",
+      "startBuild": "docker-compose up --build",
+      "stop": "docker-compose down",
+      "logs": "docker logs planify-api-app-1",
+      "mongoShell": "docker exec -it planify-api-mongo-1 mongo"
+    }
   }
 }
