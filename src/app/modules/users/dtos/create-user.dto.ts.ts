@@ -11,12 +11,12 @@ export class CreateUserDto {
     specialty?: string;
 
     @IsOptional()
-    whatsapp?: string;
+    phone?: string;
 
-    constructor(name: string, email: string, specialty?: string, whatsapp?: string) {
+    constructor(name: string, email: string, specialty?: string, phone?: string) {
         this.name = name;
         this.email = email;
         this.specialty = specialty;
-        this.whatsapp = whatsapp;
+        this.phone = phone;
     }
 }

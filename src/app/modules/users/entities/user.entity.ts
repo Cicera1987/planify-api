@@ -23,17 +23,17 @@ export class User {
     specialty?: string;
 
     @Prop()
-    whatsapp?: string;
+    phone?: string;
 
     @Prop({ default: true })
     isActive: boolean;
 
-    constructor(name: string, email: string, specialty?: string, whatsapp?: string) {
+    constructor(name: string, email: string, specialty?: string, phone?: string) {
         this.id = uuidv4();
         this.name = name;
         this.email = email;
         this.specialty = specialty;
-        this.whatsapp = whatsapp;
+        this.phone = phone;
         this.isActive = true;
     }
 }

@@ -5,6 +5,6 @@ export interface IUser extends Document {
     name: string;
     email: string;
     specialty?: string;
-    whatsapp?: string;
+    phone?: string;
     isActive: boolean;
 }

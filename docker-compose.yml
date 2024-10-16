@@ -1,36 +1,22 @@
-version: '3'
-services:
-  app:
-    container_name: nestjs-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '3001:3000'
-    environment:
-      MONGO_URL: mongodb://mongo:27017/nest
-    depends_on:
-      - mongo
-    volumes:
-      - .:/usr/src/app
-    command: npm run start:dev
-    networks:
-      - nestjs-network
+version: '3.8'
 
-  mongo:
-    container_name: mongodb
-    image: mongo:6.0
+services:
+  planify-api-app:
+    build: .
     ports:
-      - '27017:27017'
+      - "3001:3000"
+    depends_on:
+      - planify-api-mongo
+    environment:
+      - MONGODB_URI=mongodb://planify-api-mongo:27017/planify
+
+  planify-api-mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
     volumes:
-      - mongo-data:/data/db
-    networks:
-      - nestjs-network
+      - mongo_data:/data/db
 
 volumes:
-  mongo-data:
-    driver: local
+  mongo_data:
 
-networks:
-  nestjs-network:
-    driver: bridge
