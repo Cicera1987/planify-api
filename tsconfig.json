@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+
+    // Modularidade e interoperabilidade
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // Saída do código
+   "target": "ES2021",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Decorações e Metadados
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    // Verificação de tipos (TS)
+    "strict": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+
+    // Resolução de caminho e tipos
+    "baseUrl": "./",
+    "paths": {
+      "@users/*": ["src/users/*"],
+      "*": ["src/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+
+    // Outras operações e configurações
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+
+
+}
