@@ -25,20 +25,15 @@ export class UserService {
     }
 
     async update(id: string, updateData: Partial<User>): Promise<User> {
-        const updatedUser = await this.userModel.findByIdAndUpdate(
-            id,
+        const updatedUser = await this.userModel.findOneAndUpdate(
+            { id }, 
             updateData,
-            { new: true, useFindAndModify: false },
+            { new: true, runValidators: true }
         ).exec();
-
-        if (!updatedUser) throw new NotFoundException('User not found');
-        return updatedUser;
-    }
-
-    async delete(id: string): Promise<void> {
-        const result = await this.userModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        if (!updatedUser) {
             throw new NotFoundException('User not found');
         }
+
+        return updatedUser;
     }
 }

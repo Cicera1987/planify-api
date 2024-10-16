@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from '../App/modules/users/users.module';
 import { ConfigModule } from '@nestjs/config';
-
+import configuration from './config/configuration';
 @Module({
     imports: [
-        ConfigModule.forRoot(),
-        MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/planify'),
+        ConfigModule.forRoot({
+            load: [configuration],
+        }),
+        MongooseModule.forRoot(configuration().mongodbURI), 
         UsersModule,
     ],
 })
+
 export class AppModule { }
