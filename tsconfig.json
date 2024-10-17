@@ -41,7 +41,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/assets/icons/iconUser.ts"],
   "exclude": ["node_modules", "dist"]
 
 

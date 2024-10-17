@@ -13,10 +13,14 @@ export class CreateUserDto {
   @IsOptional()
   phone?: string;
 
-  constructor(name: string, email: string, specialty?: string, phone?: string) {
+  @IsOptional()
+  image?: string;
+
+  constructor(name: string, email: string, specialty?: string, phone?: string, image?: string) {
     this.name = name;
     this.email = email;
     this.specialty = specialty;
     this.phone = phone;
+    this.image = image;
   }
 }

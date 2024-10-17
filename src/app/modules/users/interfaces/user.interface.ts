@@ -7,4 +7,5 @@ export interface IUser extends Document {
   specialty?: string;
   phone?: string;
   isActive: boolean;
+  image?: string;
 }
