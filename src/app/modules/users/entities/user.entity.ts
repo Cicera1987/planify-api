@@ -2,7 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { IUser } from '../interfaces/user.interface';
 import { v4 as uuidv4 } from 'uuid';
-import { iconUser } from 'assets/icons/iconUser';
+import {iconUser}  from '../../../../assets/icons/iconUser';
+
 
 export type UserDocument = HydratedDocument<IUser>;
 

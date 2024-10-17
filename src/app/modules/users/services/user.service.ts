@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../entities/user.entity';
-import { iconUser } from 'assets/icons/iconUser';
+import { iconUser } from '../../../../assets/icons/iconUser';
 
 @Injectable()
 export class UserService {
@@ -41,4 +41,6 @@ export class UserService {
       image: user.image || iconUser,
     };
   }
+
+  
 }

@@ -74,13 +74,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "commands": {
-      "start": "docker-compose up",
-      "startDetached": "docker-compose up -d",
-      "startBuild": "docker-compose up --build",
-      "stop": "docker-compose down",
-      "logs": "docker logs planify-api-app-1",
-      "mongoShell": "docker exec -it planify-api-mongo-1 mongo"
+    "moduleNameMapper": {
+      "^assets/(.*)$": "<rootDir>/src/assets/$1"
     }
   }
 }
