@@ -27,6 +27,7 @@
     // Resolução de caminho e tipos
     "baseUrl": "./",
     "paths": {
+      "@users/*": ["src/users/*"],
       "*": ["src/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
