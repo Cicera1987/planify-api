@@ -7,35 +7,34 @@ export type UserDocument = HydratedDocument<IUser>;
 
 @Schema()
 export class User {
-    @Prop({
-        type: String,
-        default: uuidv4,
-    })
-    id: string;
+  @Prop({
+    type: String,
+    default: uuidv4,
+  })
+  id: string;
 
-    @Prop({ required: true })
-    name: string;
+  @Prop({ required: true })
+  name: string;
 
-    @Prop({ required: true, unique: true })
-    email: string;
+  @Prop({ required: true, unique: true })
+  email: string;
 
-    @Prop()
-    specialty?: string;
+  @Prop()
+  specialty?: string;
 
-    @Prop()
-    phone?: string;
+  @Prop()
+  phone?: string;
 
-    @Prop({ default: true })
-    isActive: boolean;
+  @Prop({ default: true })
+  isActive: boolean;
 
-    constructor(name: string, email: string, specialty?: string, phone?: string) {
-        this.id = uuidv4();
-        this.name = name;
-        this.email = email;
-        this.specialty = specialty;
-        this.phone = phone;
-        this.isActive = true;
-    }
+  constructor(name: string, email: string, specialty?: string, phone?: string) {
+    this.id = uuidv4();
+    this.name = name;
+    this.email = email;
+    this.specialty = specialty;
+    this.phone = phone;
+    this.isActive = true;
+  }
 }
 export const UserSchema = SchemaFactory.createForClass(User);
-
