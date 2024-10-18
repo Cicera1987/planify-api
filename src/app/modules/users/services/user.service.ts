@@ -10,9 +10,7 @@ export class UserService {
 
 
   async create(userData: Partial<User>): Promise<User> {
-    console.log('Novo user: ', userData);
-    const savedUser = await this.userModel.create(userData); // Usa create diretamente
-    console.log('salvo no MongoDB: ', savedUser);
+    const savedUser = await this.userModel.create(userData);
     return this.ensureImage(savedUser);
   }
 
@@ -43,6 +41,5 @@ export class UserService {
       image: user.image || iconUser,
     };
   }
-
   
 }

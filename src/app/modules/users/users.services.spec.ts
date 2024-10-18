@@ -47,6 +47,7 @@ describe('UserService', () => {
         });
     });
 
+    // Testing the user creation method
     describe('create', () => {
         it('should create a user', async () => {
             const result = await userService.create(mockUser);
@@ -54,6 +55,9 @@ describe('UserService', () => {
             expect(mockUserModel.create).toHaveBeenCalledWith(mockUser);
         });
     });
+
+    // Testing the user update method
+    
 
 
 });
