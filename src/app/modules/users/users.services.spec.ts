@@ -1,18 +1,31 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "./services/user.service";
-import { getModelToken } from "@nestjs/mongoose"; // Importando getModelToken para usar no mock
-import { User } from "../users/entities/user.entity"
+import { getModelToken } from "@nestjs/mongoose";
+import { User } from "./entities/user.entity";
 
 describe('UserService', () => {
     let userService: UserService;
 
+    const mockUser = {
+        name: 'John Doe',
+        email: 'john@example.com',
+        specialty: 'developer',
+        phone: '123456789',
+        image: 'image.jpg',
+    };
+
     const mockUserModel = {
+        create: jest.fn().mockImplementation(async (userData) => {
+            return {
+                ...userData,
+                toObject: jest.fn().mockReturnValue(userData),
+            };
+        }),
         find: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValue([]),
     };
 
 
-    // init module before each test
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -33,5 +46,14 @@ describe('UserService', () => {
             expect(result).toEqual([]);
         });
     });
+
+    describe('create', () => {
+        it('should create a user', async () => {
+            const result = await userService.create(mockUser);
+            expect(result).toEqual(mockUser);
+            expect(mockUserModel.create).toHaveBeenCalledWith(mockUser);
+        });
+    });
+
 
 });

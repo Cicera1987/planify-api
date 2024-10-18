@@ -8,9 +8,11 @@ import { iconUser } from '../../../../assets/icons/iconUser';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
+
   async create(userData: Partial<User>): Promise<User> {
-    const newUser = new this.userModel(userData);
-    const savedUser = await newUser.save();
+    console.log('Novo user: ', userData);
+    const savedUser = await this.userModel.create(userData); // Usa create diretamente
+    console.log('salvo no MongoDB: ', savedUser);
     return this.ensureImage(savedUser);
   }
 
