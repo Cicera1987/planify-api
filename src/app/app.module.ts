@@ -2,16 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
-import config from 'app/config/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [config],
-    }),
-    MongooseModule.forRoot(config().mongodbURI),
+    MongooseModule.forRoot(process.env.MONGODB_URI || 
+      'mongodb+srv://ciceraribeiro:yTwSUXAxsJqu80Qu@planify.48zvn.mongodb.net/planify?retryWrites=true&w=majority',),
     UsersModule,
   ],
   controllers: [AppController],
