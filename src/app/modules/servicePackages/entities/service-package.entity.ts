@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IProcedure } from 'app/modules/procedures/interfaces/procedure.interface';
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
 export type ServicePackageDocument = ServicePackage & Document;
-
 @Schema()
 export class ServicePackage {
   @Prop({
     type: String,
-    default: uuidv4,
+    default: () => uuidv4(),
   })
-  id: string;
+  _id: string;
+
   @Prop({ required: true })
   value: number;
 
@@ -22,7 +22,7 @@ export class ServicePackage {
   procedures: IProcedure[];
 
   constructor(name: string, procedures: IProcedure[], value: number) {
-    this.id = uuidv4();
+    this._id = uuidv4();
     this.name = name;
     this.procedures = procedures;
     this.value = value;
