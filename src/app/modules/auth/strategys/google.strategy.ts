@@ -7,20 +7,19 @@ import { AuthService } from '../services/auth.service';
 
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(private authService: AuthService) {
         super({
-            clientID: 'YOUR_GOOGLE_CLIENT_ID',
-            clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
-            callbackURL: 'http://localhost:3000/auth/google/callback',
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: process.env.GOOGLE_CALLBACK_URL,
             passReqToCallback: true,
             scope: ['email', 'profile'],
         });
     }
 
-    async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
-        // Aqui você pode verificar se o usuário já existe no banco de dados
+    async validate(request: any, accessToken: string, refreshToken: string, profile: any) {
         const user = await this.authService.validateGoogleUser(profile);
-        return user; // Retorna o usuário ou cria um novo
+        return user; // O usuário deve ser retornado aqui
     }
 }
