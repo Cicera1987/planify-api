@@ -11,6 +11,7 @@ export class Client {
   @Prop({
     type: String,
     default: uuidv4,
+    unique: true, 
   })
   id: string;
 

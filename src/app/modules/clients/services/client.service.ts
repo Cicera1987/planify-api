@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Client,
@@ -24,9 +24,16 @@ export class ClientService {
   }
 
   async findById(id: string): Promise<Client> {
-    const user = await this.clientModel.findById(id).exec();
-    if (!user) throw new NotFoundException('User not found');
-    return this.ensureImage(user);
+    try {
+      const client = await this.clientModel.findOne({ id }).exec(); // Busca pelo UUID
+      if (!client) {
+        throw new NotFoundException('User not found');
+      }
+      return this.ensureImage(client);
+    } catch (error) {
+      console.error('Error finding client by ID:', error);
+      throw new InternalServerErrorException('An error occurred while finding the user.');
+    }
   }
 
   async update(id: string, updateData: Partial<Client>): Promise<Client> {

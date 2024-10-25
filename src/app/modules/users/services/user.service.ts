@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../entities/user.entity';
@@ -6,7 +6,7 @@ import { iconUser } from '../../../../assets/icons/iconUser';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async create(userData: Partial<User>): Promise<User> {
     const savedUser = await this.userModel.create(userData);
@@ -19,10 +19,18 @@ export class UserService {
   }
 
   async findById(id: string): Promise<User> {
-    const user = await this.userModel.findById(id).exec();
-    if (!user) throw new NotFoundException('User not found');
-    return this.ensureImage(user);
+    try {
+      const user = await this.userModel.findOne({ id }).exec();
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      return this.ensureImage(user);
+    } catch (error) {
+      console.error('Error finding user by ID:', error);
+      throw new InternalServerErrorException('An error occurred while finding the user.');
+    }
   }
+
 
   async update(id: string, updateData: Partial<User>): Promise<User> {
     const updatedUser = await this.userModel
