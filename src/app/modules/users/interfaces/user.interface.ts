@@ -8,4 +8,5 @@ export interface IUser extends Document {
   phone?: string;
   isActive: boolean;
   image?: string;
+  isAdmin: boolean;
 }

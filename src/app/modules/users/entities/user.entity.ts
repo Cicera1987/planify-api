@@ -33,12 +33,16 @@ export class User {
   @Prop({ default: iconUser })
   image: string;
 
+  @Prop({ default: false })
+  isAdmin: boolean;
+
   constructor(
     name: string,
     email: string,
     specialty?: string,
     phone?: string,
     image?: string,
+    isAdmin?: boolean,
   ) {
     this.id = uuidv4();
     this.name = name;
@@ -47,6 +51,7 @@ export class User {
     this.phone = phone;
     this.isActive = true;
     this.image = image || iconUser;
+    this.isAdmin = isAdmin || false;
   }
 }
 export const UserSchema = SchemaFactory.createForClass(User);

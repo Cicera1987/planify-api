@@ -9,9 +9,11 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async create(userData: Partial<User>): Promise<User> {
+    const newUser = new this.userModel(userData);
     try {
-      const savedUser = await this.userModel.create(userData);
-      return this.ensureImage(savedUser);
+      const savedUser = await newUser.save();
+      return this.ensureImage(savedUser) as User;
+
     } catch (error) {
       console.error('Error creating user:', error);
       throw new InternalServerErrorException('An error occurred while creating the user.');
@@ -40,6 +42,15 @@ export class UserService {
       throw new InternalServerErrorException('An error occurred while finding the user.');
     }
   }
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      const user = await this.userModel.findOne({ email }).exec();
+      return user ? this.ensureImage(user) : null;
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw new InternalServerErrorException('An error occurred while finding the user by email.');
+    }
+  }
 
   async update(id: string, updateData: Partial<User>): Promise<User> {
     try {
@@ -56,10 +67,11 @@ export class UserService {
     }
   }
 
-  private ensureImage(user: UserDocument): User {
+  private ensureImage(user: UserDocument & { isAdmin?: boolean }): User {
     return {
       ...user.toObject(),
       image: user.image || iconUser,
+      isAdmin: user.isAdmin || false,
     };
   }
 }
