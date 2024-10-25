@@ -11,39 +11,54 @@ import { Model } from 'mongoose';
 export class ClientService {
   constructor(
     @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
-  ) {}
+  ) { }
 
-  async create(ClientData: Partial<Client>): Promise<Client> {
-    const savedUser = await this.clientModel.create(ClientData);
-    return this.ensureImage(savedUser);
+  async create(clientData: Partial<Client>): Promise<Client> {
+    try {
+      const savedClient = await this.clientModel.create(clientData);
+      return this.ensureImage(savedClient);
+    } catch (error) {
+      console.error('Error creating client:', error);
+      throw new InternalServerErrorException('An error occurred while creating the client.');
+    }
   }
 
   async findAll(): Promise<Client[]> {
-    const clients = await this.clientModel.find().exec();
-    return clients.map(this.ensureImage);
+    try {
+      const clients = await this.clientModel.find().exec();
+      return clients.map(this.ensureImage);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      throw new InternalServerErrorException('An error occurred while fetching clients.');
+    }
   }
 
   async findById(id: string): Promise<Client> {
     try {
       const client = await this.clientModel.findOne({ id }).exec(); // Busca pelo UUID
       if (!client) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('Client not found');
       }
       return this.ensureImage(client);
     } catch (error) {
       console.error('Error finding client by ID:', error);
-      throw new InternalServerErrorException('An error occurred while finding the user.');
+      throw new InternalServerErrorException('An error occurred while finding the client.');
     }
   }
 
   async update(id: string, updateData: Partial<Client>): Promise<Client> {
-    const updatedClient = await this.clientModel
-      .findOneAndUpdate({ id }, updateData, { new: true, runValidators: true })
-      .exec();
-    if (!updatedClient) {
-      throw new NotFoundException('User not found');
+    try {
+      const updatedClient = await this.clientModel
+        .findOneAndUpdate({ id }, updateData, { new: true, runValidators: true })
+        .exec();
+      if (!updatedClient) {
+        throw new NotFoundException('Client not found');
+      }
+      return this.ensureImage(updatedClient);
+    } catch (error) {
+      console.error('Error updating client:', error);
+      throw new InternalServerErrorException('An error occurred while updating the client.');
     }
-    return this.ensureImage(updatedClient);
   }
 
   private ensureImage(client: ClientDocument): Client {

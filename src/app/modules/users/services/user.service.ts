@@ -9,13 +9,23 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async create(userData: Partial<User>): Promise<User> {
-    const savedUser = await this.userModel.create(userData);
-    return this.ensureImage(savedUser);
+    try {
+      const savedUser = await this.userModel.create(userData);
+      return this.ensureImage(savedUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new InternalServerErrorException('An error occurred while creating the user.');
+    }
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.userModel.find().exec();
-    return users.map(this.ensureImage);
+    try {
+      const users = await this.userModel.find().exec();
+      return users.map(this.ensureImage);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw new InternalServerErrorException('An error occurred while fetching users.');
+    }
   }
 
   async findById(id: string): Promise<User> {
@@ -31,15 +41,19 @@ export class UserService {
     }
   }
 
-
   async update(id: string, updateData: Partial<User>): Promise<User> {
-    const updatedUser = await this.userModel
-      .findOneAndUpdate({ id }, updateData, { new: true, runValidators: true })
-      .exec();
-    if (!updatedUser) {
-      throw new NotFoundException('User not found');
+    try {
+      const updatedUser = await this.userModel
+        .findOneAndUpdate({ id }, updateData, { new: true, runValidators: true })
+        .exec();
+      if (!updatedUser) {
+        throw new NotFoundException('User not found');
+      }
+      return this.ensureImage(updatedUser);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw new InternalServerErrorException('An error occurred while updating the user.');
     }
-    return this.ensureImage(updatedUser);
   }
 
   private ensureImage(user: UserDocument): User {
