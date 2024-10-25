@@ -1,31 +1,34 @@
-import { Controller, Get, Post, Param, Body, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Put, NotFoundException, Delete } from '@nestjs/common';
 import { ServicePackageService } from '../services/service-package.service';
-import { ServicePackage } from '../entities/service-package.entity';
+import { CreateServicePackageDto } from '../dtos/create.service-package';
 
 @Controller('service-packages')
+
 export class ServicePackageController {
     constructor(private readonly servicePackageService: ServicePackageService) { }
 
     @Post()
-    async create(@Body() packageData: Partial<ServicePackage>): Promise<ServicePackage> {
-        return this.servicePackageService.create(packageData);
+    async create(@Body() createPackageDto: CreateServicePackageDto) {
+        return this.servicePackageService.create(createPackageDto);
     }
 
     @Get()
-    async findAll(): Promise<ServicePackage[]> {
+    findAll() {
         return this.servicePackageService.findAll();
     }
 
     @Get(':id')
-    async findById(@Param('id') id: string): Promise<ServicePackage> {
-        return this.servicePackageService.findById(id);
+    findOne(@Param('id') id: string) {
+        return this.servicePackageService.findOne(id);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.servicePackageService.remove(id);
     }
 
     @Put(':id')
-    async update(
-        @Param('id') id: string,
-        @Body() updateData: Partial<ServicePackage>,
-    ): Promise<ServicePackage> {
-        return this.servicePackageService.update(id, updateData);
+    update(@Param('id') id: string, @Body() updatePackageDto: CreateServicePackageDto) {
+        return this.servicePackageService.update(id, updatePackageDto);
     }
 }

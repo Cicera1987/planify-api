@@ -9,6 +9,6 @@ import { Module } from "@nestjs/common";
         MongooseModule.forFeature([{ name: Procedure.name, schema: ProcedureSchema }]),
     ],
     controllers: [ProcedureController],
-    providers: [ProcedureService],
+    providers: [ProcedureService, MongooseModule],
 })
 export class ProceduresModule { }

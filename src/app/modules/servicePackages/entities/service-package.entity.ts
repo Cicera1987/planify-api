@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Procedure } from "app/modules/procedures/entities/procedure.entity";
-import { Document, Types } from "mongoose";
+import { IProcedure } from "app/modules/procedures/interfaces/procedure.interface";
+import mongoose, { Document, Types } from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 
 export type ServicePackageDocument = ServicePackage & Document;
@@ -12,24 +12,23 @@ export class ServicePackage {
         default: uuidv4,
     })
     id: string;
+    @Prop({ required: true })
+    value: number;
 
     @Prop({ required: true })
     name: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Procedure' }] })
-    procedures: Procedure[];
-
-    @Prop({ required: true })
-    value: number;
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }] })
+    procedures: IProcedure[];
 
     constructor(
         name: string,
-        procedure: Procedure[],
+        procedures: IProcedure[],
         value: number,
     ) {
         this.id = uuidv4();
         this.name = name;
-        this.procedures = procedure;
+        this.procedures = procedures;
         this.value = value
     }
 }

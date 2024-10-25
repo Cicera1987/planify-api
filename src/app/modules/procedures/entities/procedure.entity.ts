@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { IProcedure } from '../interfaces/procedure.interface';
 
-export type ProcedureDocument = HydratedDocument<IProcedure>;
+export type ProcedureDocument = HydratedDocument<Procedure>;
 
 @Schema()
 export class Procedure {
