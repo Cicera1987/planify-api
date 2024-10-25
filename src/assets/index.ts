@@ -1,5 +1,5 @@
-import { iconUser } from "./icons/iconUser";
+import { iconUser } from './icons/iconUser';
 
 export const icons = {
-    iconUser,
+  iconUser,
 };

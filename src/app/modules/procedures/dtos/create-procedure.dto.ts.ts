@@ -1,14 +1,14 @@
-import {IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateProcedureDto {
-    @IsNotEmpty()
-    name: string;
+  @IsNotEmpty()
+  name: string;
 
-    @IsNotEmpty()
-    value: number;
+  @IsNotEmpty()
+  value: number;
 
-    constructor(name: string, value: number) {
-        this.name = name;
-        this.value = value;;
-    }
+  constructor(name: string, value: number) {
+    this.name = name;
+    this.value = value;
+  }
 }

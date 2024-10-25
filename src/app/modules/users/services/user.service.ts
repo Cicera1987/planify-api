@@ -6,8 +6,7 @@ import { iconUser } from '../../../../assets/icons/iconUser';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
-
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(userData: Partial<User>): Promise<User> {
     const savedUser = await this.userModel.create(userData);
@@ -41,5 +40,4 @@ export class UserService {
       image: user.image || iconUser,
     };
   }
-  
 }

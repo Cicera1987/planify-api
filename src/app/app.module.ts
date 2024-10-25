@@ -9,8 +9,10 @@ import { ServicePackageModule } from './modules/servicePackages/service-package.
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGODB_URI || 
-      'mongodb+srv://ciceraribeiro:yTwSUXAxsJqu80Qu@planify.48zvn.mongodb.net/planify?retryWrites=true&w=majority',),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI ||
+        'mongodb+srv://ciceraribeiro:yTwSUXAxsJqu80Qu@planify.48zvn.mongodb.net/planify?retryWrites=true&w=majority',
+    ),
     UsersModule,
     ClientsModule,
     ProceduresModule,

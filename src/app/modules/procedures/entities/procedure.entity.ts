@@ -6,27 +6,22 @@ export type ProcedureDocument = HydratedDocument<Procedure>;
 
 @Schema()
 export class Procedure {
-    @Prop({
-        type: String,
-        default: uuidv4,
-    })
-    id: string;
+  @Prop({
+    type: String,
+    default: uuidv4,
+  })
+  id: string;
 
-    @Prop({ required: true })
-    name: string;
+  @Prop({ required: true })
+  name: string;
 
+  @Prop({ required: true })
+  value: number;
 
-    @Prop({ required: true })
-    value: number;
-
-
-    constructor(
-        name: string,
-        value: number,
-    ) {
-        this.id = uuidv4();
-        this.name = name;
-        this.value = value;
-    }
+  constructor(name: string, value: number) {
+    this.id = uuidv4();
+    this.name = name;
+    this.value = value;
+  }
 }
 export const ProcedureSchema = SchemaFactory.createForClass(Procedure);

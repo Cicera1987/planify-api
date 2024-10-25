@@ -1,22 +1,22 @@
-import { IProcedure } from "app/modules/procedures/interfaces/procedure.interface";
-import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IProcedure } from 'app/modules/procedures/interfaces/procedure.interface';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateServicePackageDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    value: number;
+  @IsNumber()
+  @IsNotEmpty()
+  value: number;
 
-    @IsArray()
-    @IsNotEmpty({ each: true })
-    procedures: IProcedure[];
+  @IsArray()
+  @IsNotEmpty({ each: true })
+  procedures: IProcedure[];
 
-    constructor(name: string, procedure: IProcedure[] , value: number) {
-        this.name = name;
-        this.procedures = procedure;
-        this.value = value
-    }
+  constructor(name: string, procedure: IProcedure[], value: number) {
+    this.name = name;
+    this.procedures = procedure;
+    this.value = value;
+  }
 }
