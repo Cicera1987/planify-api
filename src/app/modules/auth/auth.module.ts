@@ -7,20 +7,18 @@ import { UsersModule } from '../users/users.module';
 import { GoogleAuthStrategy } from './strategys/google.strategy';
 
 @Module({
-    imports: [
-        UsersModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                secret: configService.get<string>('MONGODB_URI'),
-                signOptions: { expiresIn: '1h' },
-            }),
-        }),
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, GoogleAuthStrategy],
+  imports: [
+    UsersModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('MONGODB_URI'),
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, GoogleAuthStrategy],
 })
-export class AuthModule { }
-
-
+export class AuthModule {}

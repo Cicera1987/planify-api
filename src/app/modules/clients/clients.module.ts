@@ -3,7 +3,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Client, ClientSchema } from './entities/client.entity';
 import { ClientController } from './controllers/client.controller';
 import { ClientService } from './services/client.service';
-import { ServicePackage, ServicePackageSchema } from '../servicePackages/entities/service-package.entity';
+import {
+  ServicePackage,
+  ServicePackageSchema,
+} from '../servicePackages/entities/service-package.entity';
 
 @Module({
   imports: [
@@ -11,7 +14,6 @@ import { ServicePackage, ServicePackageSchema } from '../servicePackages/entitie
       { name: Client.name, schema: ClientSchema },
       { name: ServicePackage.name, schema: ServicePackageSchema },
     ]),
-
   ],
   controllers: [ClientController],
   providers: [ClientService],

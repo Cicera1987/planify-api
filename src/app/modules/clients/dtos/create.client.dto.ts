@@ -1,5 +1,12 @@
 import { IPackageMonthly } from 'app/modules/servicePackages/interfaces/service-package.interface';
-import { IsArray, IsEmail, IsNotEmpty, IsOptional, ValidateIf, ValidateNested, } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateClientDto {
   @IsNotEmpty()

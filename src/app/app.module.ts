@@ -17,7 +17,7 @@ import { SchedulingModule } from './modules/scheduling/scheduling.module';
     PassportModule.register({ defaultStrategy: 'google' }),
     MongooseModule.forRoot(
       process.env.MONGODB_URI ||
-      'mongodb+srv://ciceraribeiro:yTwSUXAxsJqu80Qu>@<planify.48zvn.mongodb.net/planify?retryWrites=true&w=majority'
+        'mongodb+srv://ciceraribeiro:yTwSUXAxsJqu80Qu>@<planify.48zvn.mongodb.net/planify?retryWrites=true&w=majority',
     ),
     UsersModule,
     ClientsModule,

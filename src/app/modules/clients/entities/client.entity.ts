@@ -12,7 +12,7 @@ export class Client {
   @Prop({
     type: String,
     default: uuidv4,
-    unique: true, 
+    unique: true,
   })
   id: string;
 
@@ -34,8 +34,9 @@ export class Client {
   @Prop({ required: true, default: false })
   statusPackage: boolean;
 
-
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ServicePackage' }] })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ServicePackage' }],
+  })
   servicePackage?: IPackageMonthly[];
 
   constructor(

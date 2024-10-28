@@ -6,70 +6,73 @@ import { IScheduling } from '../interfaces/scheduling.iterface';
 
 @Injectable()
 export class SchedulingService {
-    constructor(
-        @InjectModel('Scheduling') private readonly schedulingModel: Model<IScheduling>,
-    ) { }
+  constructor(
+    @InjectModel('Scheduling')
+    private readonly schedulingModel: Model<IScheduling>,
+  ) {}
 
-    async create(createSchedulingDto: CreateSchedulingDto): Promise<IScheduling> {
-        const { date, time, client, procedure } = createSchedulingDto;
+  async create(createSchedulingDto: CreateSchedulingDto): Promise<IScheduling> {
+    const { date, time, client, procedure } = createSchedulingDto;
 
-        if (!Array.isArray(client) || client.length === 0) {
-            throw new TypeError('Client must be a non-empty array of IDs.');
-        }
-
-        if (!Array.isArray(procedure) || procedure.length === 0) {
-            throw new TypeError('Procedure must be a non-empty array of IDs.');
-        }
-
-        const newScheduling = new this.schedulingModel({
-            date,
-            time,
-            client,
-            procedure,
-        });
-        
-        console.log('newScheduling: ', newScheduling);
-        return await newScheduling.save();
+    if (!Array.isArray(client) || client.length === 0) {
+      throw new TypeError('Client must be a non-empty array of IDs.');
     }
 
-    async findAll(): Promise<IScheduling[]> {
-        return await this.schedulingModel
-            .find()
-            .populate('client')
-            .populate('procedure')
-            .exec();
-    }
-    async findById(id: string): Promise<IScheduling> {
-        const scheduling = await this.schedulingModel
-            .findOne({ id })
-            .populate('client')
-            .populate('procedure')
-            .exec();
-
-        if (!scheduling) {
-            throw new NotFoundException('Scheduling not found');
-        }
-        return scheduling;
+    if (!Array.isArray(procedure) || procedure.length === 0) {
+      throw new TypeError('Procedure must be a non-empty array of IDs.');
     }
 
+    const newScheduling = new this.schedulingModel({
+      date,
+      time,
+      client,
+      procedure,
+    });
 
-    async update(
-        id: string,
-        updateSchedulingDto: Partial<CreateSchedulingDto>,
-    ): Promise<IScheduling> {
-        const updatedScheduling = await this.schedulingModel
-            .findOneAndUpdate({ id }, updateSchedulingDto, { new: true, runValidators: true })
-            .exec();
-        if (!updatedScheduling) {
-            throw new NotFoundException('Scheduling not found');
-        }
-        return updatedScheduling;
-    }
+    console.log('newScheduling: ', newScheduling);
+    return await newScheduling.save();
+  }
 
-    async remove(id: string): Promise<void> {
-        const result = await this.schedulingModel.deleteOne({ id }).exec();
-        if (result.deletedCount === 0) {
-            throw new NotFoundException('Scheduling not found');
-        }
+  async findAll(): Promise<IScheduling[]> {
+    return await this.schedulingModel
+      .find()
+      .populate('client')
+      .populate('procedure')
+      .exec();
+  }
+  async findById(id: string): Promise<IScheduling> {
+    const scheduling = await this.schedulingModel
+      .findOne({ id })
+      .populate('client')
+      .populate('procedure')
+      .exec();
+
+    if (!scheduling) {
+      throw new NotFoundException('Scheduling not found');
     }
+    return scheduling;
+  }
+
+  async update(
+    id: string,
+    updateSchedulingDto: Partial<CreateSchedulingDto>,
+  ): Promise<IScheduling> {
+    const updatedScheduling = await this.schedulingModel
+      .findOneAndUpdate({ id }, updateSchedulingDto, {
+        new: true,
+        runValidators: true,
+      })
+      .exec();
+    if (!updatedScheduling) {
+      throw new NotFoundException('Scheduling not found');
+    }
+    return updatedScheduling;
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.schedulingModel.deleteOne({ id }).exec();
+    if (result.deletedCount === 0) {
+      throw new NotFoundException('Scheduling not found');
+    }
+  }
 }
