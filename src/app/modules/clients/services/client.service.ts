@@ -65,6 +65,7 @@ export class ClientService {
     return {
       ...client.toObject(),
       image: client.image || iconUser,
+      statusPackage: client.statusPackage,
     };
   }
 }

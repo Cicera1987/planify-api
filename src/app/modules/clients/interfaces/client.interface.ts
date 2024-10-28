@@ -1,3 +1,4 @@
+import { IPackageMonthly } from 'app/modules/servicePackages/interfaces/service-package.interface';
 import { Document } from 'mongoose';
 
 export interface IClient extends Document {
@@ -7,4 +8,6 @@ export interface IClient extends Document {
   gender?: string;
   phone?: string;
   image?: string;
+  statusPackage: boolean;
+  package?: IPackageMonthly[];
 }
