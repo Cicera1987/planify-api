@@ -10,7 +10,7 @@ export class ServicePackage {
     type: String,
     default: () => uuidv4(),
   })
-  _id: string;
+  id: string;
 
   @Prop({ required: true })
   value: number;
@@ -22,7 +22,7 @@ export class ServicePackage {
   procedures: IProcedure[];
 
   constructor(name: string, procedures: IProcedure[], value: number) {
-    this._id = uuidv4();
+    this.id = uuidv4();
     this.name = name;
     this.procedures = procedures;
     this.value = value;

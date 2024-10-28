@@ -9,5 +9,5 @@ export interface IClient extends Document {
   phone?: string;
   image?: string;
   statusPackage: boolean;
-  package?: IPackageMonthly[];
+  servicePackage?: IPackageMonthly[];
 }

@@ -23,7 +23,7 @@ export class CreateClientDto {
   @ValidateIf((dto: CreateClientDto) => dto.statusPackage === true)
   @IsArray()
   @ValidateNested({ each: true })
-  package?: IPackageMonthly[];
+  servicePackage?: IPackageMonthly[];
 
   constructor(
     name: string,
@@ -32,7 +32,7 @@ export class CreateClientDto {
     gender?: string,
     phone?: string,
     image?: string,
-    packageData?: IPackageMonthly[],
+    servicePackage?: IPackageMonthly[],
   ) {
     this.name = name;
     this.email = email;
@@ -40,6 +40,6 @@ export class CreateClientDto {
     this.gender = gender;
     this.phone = phone;
     this.image = image;
-    this.package = packageData;
+    this.servicePackage = servicePackage;
   }
 }

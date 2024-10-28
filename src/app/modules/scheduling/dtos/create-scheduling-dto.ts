@@ -1,6 +1,6 @@
 import { IClient } from "app/modules/clients/interfaces/client.interface";
 import { IProcedure } from "app/modules/procedures/interfaces/procedure.interface";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateSchedulingDto {
   @IsString()
@@ -11,12 +11,12 @@ export class CreateSchedulingDto {
   @IsNotEmpty()
   time: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsArray()
+  @IsNotEmpty({ each: true })
   client: IClient[];
 
-  @IsString()
-  @IsNotEmpty()
+  @IsArray()
+  @IsNotEmpty({ each: true })
   procedure: IProcedure[];
 
     constructor(

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { IClient } from '../interfaces/client.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { iconUser } from '../../../../assets/icons/iconUser';
@@ -34,8 +34,9 @@ export class Client {
   @Prop({ required: true, default: false })
   statusPackage: boolean;
 
-  @Prop()
-  package?: IPackageMonthly[];
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ServicePackage' }] })
+  servicePackage?: IPackageMonthly[];
 
   constructor(
     name: string,
@@ -44,7 +45,7 @@ export class Client {
     gender?: string,
     phone?: string,
     image?: string,
-    packageData?: IPackageMonthly[],
+    servicePackage?: IPackageMonthly[],
   ) {
     this.id = uuidv4();
     this.name = name;
@@ -53,7 +54,7 @@ export class Client {
     this.gender = gender;
     this.phone = phone;
     this.image = image || iconUser;
-    this.package = packageData;
+    this.servicePackage = servicePackage;
   }
 }
 export const ClientSchema = SchemaFactory.createForClass(Client);

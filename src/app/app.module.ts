@@ -9,6 +9,7 @@ import { ServicePackageModule } from './modules/servicePackages/service-package.
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { SchedulingModule } from './modules/scheduling/scheduling.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PassportModule } from '@nestjs/passport';
     ProceduresModule,
     ServicePackageModule,
     AuthModule,
+    SchedulingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

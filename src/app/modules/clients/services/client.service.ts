@@ -6,6 +6,7 @@ import {
 } from 'app/modules/clients/entities/client.entity';
 import { iconUser } from 'assets/icons/iconUser';
 import { Model } from 'mongoose';
+import { CreateClientDto } from '../dtos/create.client.dto';
 
 @Injectable()
 export class ClientService {
@@ -13,19 +14,42 @@ export class ClientService {
     @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
   ) { }
 
-  async create(clientData: Partial<Client>): Promise<Client> {
-    try {
-      const savedClient = await this.clientModel.create(clientData);
-      return this.ensureImage(savedClient);
-    } catch (error) {
-      console.error('Error creating client:', error);
-      throw new InternalServerErrorException('An error occurred while creating the client.');
+
+  async create(
+    clientData: CreateClientDto,
+  ): Promise<Client> {
+    const {
+      name,
+      email,
+      gender,
+      phone,
+      image,
+      statusPackage,
+      servicePackage,
+    } = clientData;
+
+    if (!Array.isArray(servicePackage)) {
+      throw new TypeError('ServicePackage must be an array of IDs.');
     }
+
+    const client = new this.clientModel({
+      name,
+      email,
+      gender,
+      phone,
+      image,
+      statusPackage,
+      servicePackage,
+    });
+
+    const savedClient = await client.save();
+    return this.ensureImage(savedClient);
   }
+
 
   async findAll(): Promise<Client[]> {
     try {
-      const clients = await this.clientModel.find().exec();
+      const clients = await this.clientModel.find().populate('servicePackage').exec();
       return clients.map(this.ensureImage);
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -35,7 +59,7 @@ export class ClientService {
 
   async findById(id: string): Promise<Client> {
     try {
-      const client = await this.clientModel.findOne({ id }).exec(); // Busca pelo UUID
+      const client = await this.clientModel.findOne({ id }).populate('servicePackage').exec();
       if (!client) {
         throw new NotFoundException('Client not found');
       }
