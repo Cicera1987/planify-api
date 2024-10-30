@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateSchedulingDto } from '../dtos/create-scheduling-dto';
@@ -9,7 +13,7 @@ export class SchedulingService {
   constructor(
     @InjectModel('Scheduling')
     private readonly schedulingModel: Model<IScheduling>,
-  ) {}
+  ) { }
 
   async create(createSchedulingDto: CreateSchedulingDto): Promise<IScheduling> {
     const { date, time, client, procedure } = createSchedulingDto;
@@ -28,8 +32,6 @@ export class SchedulingService {
       client,
       procedure,
     });
-
-    console.log('newScheduling: ', newScheduling);
     return await newScheduling.save();
   }
 
@@ -37,14 +39,15 @@ export class SchedulingService {
     return await this.schedulingModel
       .find()
       .populate('client')
-      .populate('procedure')
+      .populate('procedure', 'id name')
       .exec();
   }
+
   async findById(id: string): Promise<IScheduling> {
     const scheduling = await this.schedulingModel
       .findOne({ id })
       .populate('client')
-      .populate('procedure')
+      .populate('procedure', 'id name')
       .exec();
 
     if (!scheduling) {
@@ -75,4 +78,5 @@ export class SchedulingService {
       throw new NotFoundException('Scheduling not found');
     }
   }
+
 }

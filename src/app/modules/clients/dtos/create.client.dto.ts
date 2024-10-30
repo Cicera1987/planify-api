@@ -10,7 +10,7 @@ import {
 
 export class CreateClientDto {
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @IsEmail()
   email?: string;
@@ -32,21 +32,23 @@ export class CreateClientDto {
   @ValidateNested({ each: true })
   servicePackage?: IPackageMonthly[];
 
-  constructor(
-    name: string,
-    email: string,
-    statusPackage: boolean,
-    gender?: string,
-    phone?: string,
-    image?: string,
-    servicePackage?: IPackageMonthly[],
-  ) {
-    this.name = name;
-    this.email = email;
-    this.statusPackage = statusPackage;
-    this.gender = gender;
-    this.phone = phone;
-    this.image = image;
-    this.servicePackage = servicePackage;
-  }
+//   constructor(
+//     name: string,
+//     email: string,
+//     statusPackage: boolean,
+//     gender?: string,
+//     phone?: string,
+//     image?: string,
+//     servicePackage?: IPackageMonthly[],
+//   ) {
+//     this.name = name;
+//     this.email = email;
+//     this.statusPackage = statusPackage;
+//     this.gender = gender;
+//     this.phone = phone;
+//     this.image = image;
+//     this.servicePackage = servicePackage;
+//   }
+// }
+
 }

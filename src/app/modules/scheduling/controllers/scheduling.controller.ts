@@ -45,4 +45,5 @@ export class SchedulingController {
     await this.schedulingService.remove(id);
     return { message: 'Scheduling successfully deleted' };
   }
+
 }

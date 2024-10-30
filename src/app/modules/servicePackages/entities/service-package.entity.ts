@@ -20,12 +20,16 @@ export class ServicePackage {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }] })
   procedures: IProcedure[];
+  @Prop({ default: 0 })
+  usedProcedures: number;
 
-  constructor(name: string, procedures: IProcedure[], value: number) {
+
+  constructor(name: string, procedures: IProcedure[], value: number, usedProcedures: number) {
     this.id = uuidv4();
     this.name = name;
     this.procedures = procedures;
     this.value = value;
+    this.usedProcedures = usedProcedures;
   }
 }
 

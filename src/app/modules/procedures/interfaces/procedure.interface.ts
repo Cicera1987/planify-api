@@ -4,4 +4,5 @@ export interface IProcedure extends Document {
   id: string;
   name: string;
   value: number;
+  usedProcedures: number;
 }
