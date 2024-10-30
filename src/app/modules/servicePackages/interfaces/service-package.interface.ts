@@ -5,4 +5,6 @@ export interface IPackageMonthly extends Document {
   id: string;
   name: string;
   procedure: IProcedure[];
+  usedProcedures: number;
+  isActive: boolean;
 }

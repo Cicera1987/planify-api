@@ -5,7 +5,6 @@ import {
   Param,
   Body,
   Put,
-  NotFoundException,
   Delete,
 } from '@nestjs/common';
 import { ServicePackageService } from '../services/service-package.service';

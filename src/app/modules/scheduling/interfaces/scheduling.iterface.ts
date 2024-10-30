@@ -7,4 +7,6 @@ export interface IScheduling extends Document {
   time: string;
   client: IClient[];
   procedure: IProcedure[];
+  isCompleted: boolean;
+  notes: string;
 }

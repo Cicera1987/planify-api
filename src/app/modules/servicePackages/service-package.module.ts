@@ -18,6 +18,9 @@ import {
       { name: Procedure.name, schema: ProcedureSchema },
     ]),
   ],
+  exports: [
+    MongooseModule.forFeature([{ name: ServicePackage.name, schema: ServicePackageSchema }]),
+  ],
   controllers: [ServicePackageController],
   providers: [ServicePackageService],
 })

@@ -10,6 +10,7 @@ import {
 import { IScheduling } from '../interfaces/scheduling.iterface';
 import { CreateSchedulingDto } from '../dtos/create-scheduling-dto';
 import { SchedulingService } from '../services/scheduling.service';
+import { FinalizeSchedulingDto } from '../dtos/finalize.dto';
 
 @Controller('scheduling')
 export class SchedulingController {
@@ -46,4 +47,11 @@ export class SchedulingController {
     return { message: 'Scheduling successfully deleted' };
   }
 
+  @Patch(':id/finalize')
+  async finalize(
+    @Param('id') id: string,
+    @Body() finalizeDto: FinalizeSchedulingDto, // Use o DTO aqui
+  ) {
+    return this.schedulingService.finalizeAppointment(id, finalizeDto);
+  }
 }

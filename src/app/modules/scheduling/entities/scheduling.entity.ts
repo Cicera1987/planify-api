@@ -23,11 +23,16 @@ export class Scheduling {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Client' }] })
   client: IClient[];
 
-  constructor(date: Date, procedure: IProcedure[], client: IClient[]) {
+  @Prop({ default: false })
+  isCompleted: boolean;
+
+
+  constructor(date: Date, procedure: IProcedure[], client: IClient[], isCompleted: boolean) {
     this.id = uuidv4();
     this.date = date;
     this.procedure = procedure;
     this.client = client;
+    this.isCompleted = isCompleted;
   }
 }
 export const SchedulingSchema = SchemaFactory.createForClass(Scheduling);

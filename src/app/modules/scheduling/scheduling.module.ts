@@ -8,6 +8,7 @@ import {
   ProcedureSchema,
 } from '../procedures/entities/procedure.entity';
 import { Client, ClientSchema } from '../clients/entities/client.entity';
+import { ServicePackageModule } from '../servicePackages/service-package.module';
 
 @Module({
   imports: [
@@ -15,7 +16,9 @@ import { Client, ClientSchema } from '../clients/entities/client.entity';
       { name: Scheduling.name, schema: SchedulingSchema },
       { name: Client.name, schema: ClientSchema },
       { name: Procedure.name, schema: ProcedureSchema },
+
     ]),
+    ServicePackageModule,
   ],
   controllers: [SchedulingController],
   providers: [SchedulingService],
