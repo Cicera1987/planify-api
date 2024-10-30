@@ -42,7 +42,7 @@ export class SchedulingService {
 
   async findAll(): Promise<IScheduling[]> {
     return await this.schedulingModel
-      .find()
+      .find({isCompleted: false})
       .populate('client')
       .populate('procedure', 'id name')
       .exec();
@@ -50,7 +50,7 @@ export class SchedulingService {
 
   async findById(id: string): Promise<IScheduling> {
     const scheduling = await this.schedulingModel
-      .findOne({ id })
+      .findOne({ id }, {isCompleted: false})
       .populate('client')
       .populate('procedure', 'id name')
       .exec();
