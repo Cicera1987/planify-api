@@ -33,12 +33,16 @@ export class User {
   @Prop({ default: iconUser })
   image: string;
 
+  @Prop({ required: true })
+  password: string;
+
   @Prop({ default: false })
   isAdmin: boolean;
 
   constructor(
     name: string,
     email: string,
+    password: string,
     specialty?: string,
     phone?: string,
     image?: string,
@@ -47,6 +51,7 @@ export class User {
     this.id = uuidv4();
     this.name = name;
     this.email = email;
+    this.password = password;
     this.specialty = specialty;
     this.phone = phone;
     this.isActive = true;

@@ -1,8 +1,8 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GoogleAuthGuard } from '../guards/google-auth-guard';
 import { AuthService } from '../services/auth.service';
-import { FacebookAuthGuard } from '../guards/facebook-auth-guard';
 import { User } from 'app/modules/users/entities/user.entity';
+import { AuthDto } from '../dtos/auth.ditos';
 
 @Controller('auth')
 export class AuthController {
@@ -23,16 +23,14 @@ export class AuthController {
     return res.redirect(`http://localhost:3000?token=${token.access_token}`);
   }
 
-  @Get('facebook')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuth(@Req() req: any) {
-    return req.user; // Triggers the redirect to Facebook login
-  }
+  @Post('login') // Novo endpoint para login manual
+  async login(@Body() authDto: AuthDto) {
+    const user = await this.authService.validateUser(authDto.email, authDto.password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const token = this.authService.login(user);
+    return { access_token: (await token).access_token }; // Retorne o token
+}
 
-  @Get('facebook/callback')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuthCallback(@Req() req: any, @Res() res: any) {
-    const token = await this.authService.login(req.user as User);
-    return res.redirect(`http://localhost:3000?token=${token.access_token}`);
-  }
 }

@@ -56,4 +56,14 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.userService.findByEmail(email);
+
+    if (user && user.password === password) {
+      return user;
+    }
+
+    return null;
+  }
 }
