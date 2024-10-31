@@ -62,20 +62,27 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
 
-    if (user && await bcrypt.compare(password, user.password)) {
-      return user;
+    if (user) {
+      if (!password) {
+        throw new Error('Password is required');
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        return user;
+      }
     }
 
     return null;
   }
 
   async logout(token: string) {
-    this.blackList.push(token); // Adiciona o token à blacklist
+    this.blackList.push(token);
     return { message: 'Logout successful' };
   }
 
   isTokenBlacklisted(token: string): boolean {
-    return this.blackList.includes(token); // Verifica se o token está na blacklist
+    return this.blackList.includes(token);
   }
 
 

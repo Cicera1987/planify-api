@@ -7,6 +7,9 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
+  @IsNotEmpty()
+  password: string;
+
   @IsOptional()
   specialty?: string;
 
@@ -19,12 +22,14 @@ export class CreateUserDto {
   constructor(
     name: string,
     email: string,
+    password: string,
     specialty?: string,
     phone?: string,
     image?: string,
   ) {
     this.name = name;
     this.email = email;
+    this.password = password;
     this.specialty = specialty;
     this.phone = phone;
     this.image = image;

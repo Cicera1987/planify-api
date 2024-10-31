@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -7,6 +8,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../entities/user.entity';
 import { iconUser } from '../../../../assets/icons/iconUser';
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { IRegister } from '../interfaces/user.interface';
 
 @Injectable()
 export class UserService {
@@ -24,6 +28,33 @@ export class UserService {
       );
     }
   }
+
+  async registerUser(registerDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
+    }
+
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const newUser: IRegister = {
+      name: registerDto.name,
+      email: registerDto.email,
+      password: hashedPassword,
+      isActive: true,
+      isAdmin: false,
+    };
+
+    const createdUser = new this.userModel(newUser);
+    try {
+      const savedUser = await createdUser.save();
+      return this.ensureImage(savedUser) as User;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new InternalServerErrorException('An error occurred while creating the user.');
+    }
+  }
+
+
 
   async findAll(): Promise<User[]> {
     try {
@@ -51,17 +82,12 @@ export class UserService {
       );
     }
   }
+ 
   async findByEmail(email: string): Promise<User | null> {
-    try {
-      const user = await this.userModel.findOne({ email }).exec();
-      return user ? this.ensureImage(user) : null;
-    } catch (error) {
-      console.error('Error finding user by email:', error);
-      throw new InternalServerErrorException(
-        'An error occurred while finding the user by email.',
-      );
-    }
+    const user = await this.userModel.findOne({ email }).exec();
+    return user ? this.ensureImage(user) : null;
   }
+
 
   async update(id: string, updateData: Partial<User>): Promise<User> {
     try {

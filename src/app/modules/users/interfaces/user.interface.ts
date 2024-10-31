@@ -11,3 +11,12 @@ export interface IUser extends Document {
   image?: string;
   isAdmin: boolean;
 }
+
+export interface IRegister {
+  name: string;
+  email: string;
+  password: string;
+  isActive?: boolean;
+  isAdmin?: boolean;
+}
+

@@ -29,9 +29,10 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const token = this.authService.login(user);
-    return { access_token: (await token).access_token };
+    const token = await this.authService.login(user);
+    return { access_token: token.access_token };
   }
+
 
   @Post('logout')
   async logout(@Req() req: Response) {
