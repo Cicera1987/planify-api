@@ -4,3 +4,8 @@ export interface IAuth extends Document {
     email: string;
     password: string;
 }
+
+// logout.interface.ts
+export interface ILogout extends Document {
+    message: string;
+}

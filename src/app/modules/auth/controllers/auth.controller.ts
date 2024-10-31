@@ -6,7 +6,7 @@ import { AuthDto } from '../dtos/auth.ditos';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
@@ -23,14 +23,29 @@ export class AuthController {
     return res.redirect(`http://localhost:3000?token=${token.access_token}`);
   }
 
-  @Post('login') // Novo endpoint para login manual
+  @Post('login')
   async login(@Body() authDto: AuthDto) {
     const user = await this.authService.validateUser(authDto.email, authDto.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
     const token = this.authService.login(user);
-    return { access_token: (await token).access_token }; // Retorne o token
+    return { access_token: (await token).access_token };
+  }
+
+  @Post('logout')
+  async logout(@Req() req: Response) {
+    const token = req.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return { statusCode: 400, message: 'Token not provided' };
+    }
+
+    const success = await this.authService.logout(token);
+    if (success) {
+      return { statusCode: 200, message: 'Logout successful' };
+    } else {
+      return { statusCode: 401, message: 'Invalid token' };
+    }
+  }
 }
 
-}

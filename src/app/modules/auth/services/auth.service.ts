@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { User } from 'app/modules/users/entities/user.entity';
 import { UserService } from 'app/modules/users/services/user.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  private readonly blackList: string[] = [];
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateGoogleUser(profile: any): Promise<User> {
     const email = profile.emails[0].value;
@@ -60,10 +62,22 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
 
-    if (user && user.password === password) {
+    if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
 
     return null;
   }
+
+  async logout(token: string) {
+    this.blackList.push(token); // Adiciona o token à blacklist
+    return { message: 'Logout successful' };
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.blackList.includes(token); // Verifica se o token está na blacklist
+  }
+
+
 }
+
