@@ -24,13 +24,15 @@ public class OpenApiConfig {
                 .license(new License().name("Apache 2.0").url("https://springdoc.org"))
           );
   }
+
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.ignoring().requestMatchers(
           "/v3/api-docs/**",
           "/swagger-ui/**",
           "/swagger-ui.html",
-          "/swagger-ui/index.html"
+          "/swagger-ui/index.html",
+          "/swagger/**"
     );
   }
 
@@ -39,8 +41,7 @@ public class OpenApiConfig {
     http
           .csrf(AbstractHttpConfigurer::disable)
           .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // 👈 libera todos os endpoints por enquanto
           );
     return http.build();
   }

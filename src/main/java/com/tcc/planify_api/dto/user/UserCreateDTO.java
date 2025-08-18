@@ -3,7 +3,6 @@ package com.tcc.planify_api.dto.user;
 import com.tcc.planify_api.enums.PositionEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -29,7 +28,9 @@ public class UserCreateDTO {
   @NotEmpty
   private String speciality;
 
-  @NotNull
-  private PositionEnum position;
+  @Builder.Default
+  private PositionEnum position = PositionEnum.PROFESSIONAL;
+
+  private Boolean active;
 }
 

@@ -23,9 +23,12 @@ public class UserService {
 
   @Transactional
   public UserDTO createUser(UserCreateDTO userCreateDTO) {
+    PositionEnum positionEnum = userCreateDTO.getPosition() != null
+          ? userCreateDTO.getPosition()
+          : PositionEnum.PROFESSIONAL;
 
-    PositionEntity position = positionRepository.findByName(userCreateDTO.getPosition().name())
-          .orElseThrow(() -> new IllegalArgumentException("Posição inválida: " + userCreateDTO.getPosition()));
+    PositionEntity position = positionRepository.findByName(positionEnum.name())
+          .orElseThrow(() -> new IllegalArgumentException("Posição inválida: " + positionEnum));
 
     UserEntity userEntity = UserEntity.builder()
           .username(userCreateDTO.getUsername())
@@ -78,5 +81,26 @@ public class UserService {
 
     return mapToDTO(user);
   }
+
+  @Transactional
+  public UserDTO updateUser(Long id, UserCreateDTO updateDTO) {
+    UserEntity user = userRepository.findById(id)
+          .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + id));
+
+    if (updateDTO.getUsername() != null) user.setUsername(updateDTO.getUsername());
+    if (updateDTO.getEmail() != null) user.setEmail(updateDTO.getEmail());
+    if (updateDTO.getPhone() != null) user.setPhone(updateDTO.getPhone());
+    if (updateDTO.getSpeciality() != null) user.setSpeciality(updateDTO.getSpeciality());
+    if (updateDTO.getPosition() != null) {
+      PositionEntity position = positionRepository.findByName(updateDTO.getPosition().name())
+            .orElseThrow(() -> new IllegalArgumentException("Cargo inválido: " + updateDTO.getPosition()));
+      user.setPosition(position);
+    }
+    if (updateDTO.getActive() != null) user.setActive(updateDTO.getActive());
+
+    UserEntity updatedUser = userRepository.save(user);
+    return mapToDTO(updatedUser);
+  }
+
 
 }
