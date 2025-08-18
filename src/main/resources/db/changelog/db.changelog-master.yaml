@@ -1,0 +1,30 @@
+databaseChangeLog:
+  # Tabelas
+  - include:
+      file: db/changelog/tables/position.yaml
+  - include:
+      file: db/changelog/tables/users.yaml
+  - include:
+      file: db/changelog/tables/contact.yaml
+  - include:
+      file: db/changelog/tables/services.yaml
+  - include:
+      file: db/changelog/tables/package.yaml
+  - include:
+      file: db/changelog/tables/services_packages.yaml
+  - include:
+      file: db/changelog/tables/scheduling.yaml
+  - include:
+      file: db/changelog/tables/payment.yaml
+  - include:
+      file: db/changelog/tables/notification.yaml
+  - include:
+      file: db/changelog/tables/calendar.yaml
+
+  # Constraints
+  - include:
+      file: db/changelog/constraints/fks.yaml
+
+  # Inserts iniciais
+  - include:
+      file: db/changelog/inserts/position-inserts.yaml

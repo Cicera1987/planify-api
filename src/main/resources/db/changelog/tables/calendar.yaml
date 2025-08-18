@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10
+      author: cicera_ribeiro
+      changes:
+        - createTable:
+            tableName: calendar
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: local_date
+                  type: DATE
+              - column:
+                  name: time
+                  type: TIME
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP

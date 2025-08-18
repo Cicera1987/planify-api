@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-positions
+      author: cicera_ribeiro
+      changes:
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: name
+                  value: ADMIN
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: name
+                  value: PROFESSIONAL
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: name
+                  value: CLIENT

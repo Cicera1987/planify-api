@@ -1,0 +1,168 @@
+databaseChangeLog:
+  - changeSet:
+      id: fk-1-user-position
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: position_id
+            referencedTableName: position
+            referencedColumnNames: id
+            constraintName: fk_user_position
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-2-contact-professional
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: contact
+            baseColumnNames: professional_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_contact_professional
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-3-service-owner
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: services
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_service_owner
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-4-package-owner
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: package
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_package_owner
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-5-services-packages-package
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: services_packages
+            baseColumnNames: package_id
+            referencedTableName: package
+            referencedColumnNames: id
+            constraintName: fk_services_packages_package
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-6-services-packages-service
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: services_packages
+            baseColumnNames: service_id
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: fk_services_packages_service
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-7-scheduling-professional
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: scheduling
+            baseColumnNames: professional_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_scheduling_professional
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-8-scheduling-service
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: scheduling
+            baseColumnNames: service_id
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: fk_scheduling_service
+            onDelete: SET NULL
+
+  - changeSet:
+      id: fk-9-scheduling-package
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: scheduling
+            baseColumnNames: package_id
+            referencedTableName: package
+            referencedColumnNames: id
+            constraintName: fk_scheduling_package
+            onDelete: SET NULL
+
+  - changeSet:
+      id: fk-10-scheduling-contact
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: scheduling
+            baseColumnNames: contact_id
+            referencedTableName: contact
+            referencedColumnNames: id
+            constraintName: fk_scheduling_contact
+            onDelete: SET NULL
+
+  - changeSet:
+      id: fk-11-payment-scheduling
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: payment
+            baseColumnNames: scheduling_id
+            referencedTableName: scheduling
+            referencedColumnNames: id
+            constraintName: fk_payment_scheduling
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-12-payment-contact
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: payment
+            baseColumnNames: contact_id
+            referencedTableName: contact
+            referencedColumnNames: id
+            constraintName: fk_payment_contact
+            onDelete: SET NULL
+
+  - changeSet:
+      id: fk-13-payment-professional
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: payment
+            baseColumnNames: professional_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_payment_professional
+            onDelete: CASCADE
+
+  - changeSet:
+      id: fk-14-notification-user
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: notification
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_notification_user
+            onDelete: CASCADE

@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: cicera_ribeiro
+      changes:
+        - createTable:
+            tableName: package
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_price
+                  type: NUMERIC(10,2)
+              - column:
+                  name: number_sessions
+                  type: INT
+              - column:
+                  name: owner_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP

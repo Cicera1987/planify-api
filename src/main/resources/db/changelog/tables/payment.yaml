@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8
+      author: cicera_ribeiro
+      changes:
+        - createTable:
+            tableName: payment
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: scheduling_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: professional_id
+                  type: BIGINT
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+              - column:
+                  name: payment_form
+                  type: VARCHAR(50)
+              - column:
+                  name: date_payment
+                  type: DATE
+              - column:
+                  name: contact_id
+                  type: BIGINT
+              - column:
+                  name: client_id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
