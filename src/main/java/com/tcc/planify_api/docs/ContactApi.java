@@ -2,6 +2,7 @@ package com.tcc.planify_api.docs;
 
 import com.tcc.planify_api.dto.contact.ContactCreateDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -11,18 +12,31 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Tag(name = "Contato")
 public interface ContactApi {
 
-  @Operation(summary = "Listar todos os contatos", description = "Retorna uma lista de todos os contatos cadastrados pelo profissional.")
+  @Operation(summary = "Listar todos os contatos", description = "Retorna uma lista paginada de contatos cadastrados pelo profissional.")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso. Retorna a lista de contatos."),
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
   @GetMapping
-  ResponseEntity<List<ContactDTO>> listContact();
+  ResponseEntity<PageDTO<ContactDTO>> listContact(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+  );
+
+  @Operation(summary = "Buscar contatos por nome", description = "Retorna uma lista paginada de contatos filtrados pelo nome do contato do profissional logado.")
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @GetMapping("/search")
+  ResponseEntity<PageDTO<ContactDTO>> searchContacts(
+        @RequestParam String name,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+  );
 
   @Operation(summary = "Criar um novo contato", description = "Cria um novo contato para o profissional logado.")
   @ApiResponses(value = {

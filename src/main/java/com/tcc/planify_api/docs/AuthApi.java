@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,4 +35,10 @@ public interface AuthApi {
   })
   @PutMapping("/{id}")
   ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateDTO userUpdateDTO);
+
+  @Operation(summary = "Logout", description = "Encerra a sessão do usuário atual.")
+  @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso.")
+  @PostMapping("/logout")
+  ResponseEntity<Void> logout(HttpServletResponse response);
+
 }

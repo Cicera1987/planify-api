@@ -2,11 +2,15 @@ package com.tcc.planify_api.service;
 
 import com.tcc.planify_api.dto.contact.ContactCreateDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.entity.ContactEntity;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.repository.ContactRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,11 +27,17 @@ public class ContactService {
   private final ContactRepository contactRepository;
   private final UserRepository userRepository;
 
-  public List<ContactDTO> getAllContacts() {
-    return contactRepository.findAll()
-          .stream()
-          .map(this::toDTO)
-          .collect(Collectors.toList());
+  public PageDTO<ContactDTO> getContacts(Pageable pageable) {
+    Page<ContactEntity> page = contactRepository.findAll(pageable);
+    return PaginationUtil.toPageResponse(page, this::toDTO);
+  }
+
+  public PageDTO<ContactDTO> searchContacts(String name, Pageable pageable) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Long professionalId = Long.parseLong(auth.getPrincipal().toString());
+
+    Page<ContactEntity> page = contactRepository.findByProfessionalIdAndNameContainingIgnoreCase(professionalId, name, pageable);
+    return PaginationUtil.toPageResponse(page, this::toDTO);
   }
 
   @Transactional
