@@ -33,4 +33,3 @@ public class UserCreateDTO {
 
   private Boolean active;
 }
-

@@ -1,28 +1,30 @@
 package com.tcc.planify_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tcc.planify_api.enums.PositionEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-
 import java.util.Set;
+import jakarta.persistence.*;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
-@Entity
+@Entity(name = "position")
 @Table(name = "position")
 public class PositionEntity implements GrantedAuthority {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Long id;
 
   @Column(name = "name", nullable = false, unique = true)
-  private String name;
+  @Enumerated(EnumType.STRING)
+  private PositionEnum position;
 
   @JsonIgnore
   @OneToMany(mappedBy = "position")
@@ -30,6 +32,6 @@ public class PositionEntity implements GrantedAuthority {
 
   @Override
   public String getAuthority() {
-    return name;
+    return position.name();
   }
 }

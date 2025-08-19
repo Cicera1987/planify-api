@@ -8,10 +8,12 @@ import com.tcc.planify_api.enums.PositionEnum;
 import com.tcc.planify_api.repository.PositionRepository;
 import com.tcc.planify_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,35 +21,38 @@ import java.util.stream.Collectors;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
   private final PositionRepository positionRepository;
+
+  public Optional<UserEntity> findByLogin(String username) {
+    return userRepository.findByUsername(username);
+  }
 
   @Transactional
   public UserDTO createUser(UserCreateDTO userCreateDTO) {
-    PositionEnum positionEnum = userCreateDTO.getPosition() != null
-          ? userCreateDTO.getPosition()
-          : PositionEnum.PROFESSIONAL;
+    PositionEnum positionEnum = Optional.ofNullable(userCreateDTO.getPosition())
+          .orElse(PositionEnum.PROFESSIONAL);
 
-    PositionEntity position = positionRepository.findByName(positionEnum.name())
+    PositionEntity position = positionRepository.findByPosition(positionEnum)
           .orElseThrow(() -> new IllegalArgumentException("Posição inválida: " + positionEnum));
 
     UserEntity userEntity = UserEntity.builder()
           .username(userCreateDTO.getUsername())
           .email(userCreateDTO.getEmail())
           .phone(userCreateDTO.getPhone())
-          .password(userCreateDTO.getPassword())
+          .password(passwordEncoder.encode(userCreateDTO.getPassword()))
           .speciality(userCreateDTO.getSpeciality())
           .position(position)
-          .active(true)
+          .active(Boolean.TRUE.equals(userCreateDTO.getActive()))
           .build();
 
-    UserEntity savedUser = userRepository.save(userEntity);
-    return mapToDTO(savedUser);
+    return mapToUserDTO(userRepository.save(userEntity));
   }
 
   @Transactional(readOnly = true)
   public List<UserDTO> getAllUsers() {
     return userRepository.findAll().stream()
-          .map(this::mapToDTO)
+          .map(this::mapToUserDTO)
           .collect(Collectors.toList());
   }
 
@@ -55,31 +60,7 @@ public class UserService {
   public UserDTO getUserById(Long id) {
     UserEntity user = userRepository.findById(id)
           .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + id));
-    return mapToDTO(user);
-  }
-
-  private UserDTO mapToDTO(UserEntity userEntity) {
-    return UserDTO.builder()
-          .id(userEntity.getId())
-          .username(userEntity.getUsername())
-          .email(userEntity.getEmail())
-          .phone(userEntity.getPhone())
-          .password(userEntity.getPassword())
-          .position(PositionEnum.valueOf(userEntity.getPosition().getName()))
-          .speciality(userEntity.getSpeciality())
-          .active(userEntity.isActive())
-          .build();
-  }
-  @Transactional(readOnly = true)
-  public UserDTO login(String email, String password) {
-    UserEntity user = userRepository.findByEmail(email)
-          .orElseThrow(() -> new IllegalArgumentException("Email não encontrado"));
-
-    if (!user.getPassword().equals(password)) {
-      throw new IllegalArgumentException("Senha incorreta");
-    }
-
-    return mapToDTO(user);
+    return mapToUserDTO(user);
   }
 
   @Transactional
@@ -92,15 +73,37 @@ public class UserService {
     if (updateDTO.getPhone() != null) user.setPhone(updateDTO.getPhone());
     if (updateDTO.getSpeciality() != null) user.setSpeciality(updateDTO.getSpeciality());
     if (updateDTO.getPosition() != null) {
-      PositionEntity position = positionRepository.findByName(updateDTO.getPosition().name())
+      PositionEntity position = positionRepository.findByPosition(updateDTO.getPosition())
             .orElseThrow(() -> new IllegalArgumentException("Cargo inválido: " + updateDTO.getPosition()));
       user.setPosition(position);
     }
     if (updateDTO.getActive() != null) user.setActive(updateDTO.getActive());
+    if (updateDTO.getPassword() != null) user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
 
-    UserEntity updatedUser = userRepository.save(user);
-    return mapToDTO(updatedUser);
+    return mapToUserDTO(userRepository.save(user));
   }
 
+  @Transactional(readOnly = true)
+  public UserDTO login(String email, String rawPassword) {
+    UserEntity user = userRepository.findByEmail(email)
+          .orElseThrow(() -> new IllegalArgumentException("Email não encontrado"));
 
+    if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+      throw new IllegalArgumentException("Senha incorreta");
+    }
+
+    return mapToUserDTO(user);
+  }
+
+  private UserDTO mapToUserDTO(UserEntity userEntity) {
+    return UserDTO.builder()
+          .id(userEntity.getId())
+          .username(userEntity.getUsername())
+          .email(userEntity.getEmail())
+          .phone(userEntity.getPhone())
+          .position(userEntity.getPosition().getPosition())
+          .speciality(userEntity.getSpeciality())
+          .active(userEntity.isActive())
+          .build();
+  }
 }

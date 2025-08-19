@@ -1,0 +1,56 @@
+package com.tcc.planify_api.docs;
+
+import com.tcc.planify_api.dto.contact.ContactCreateDTO;
+import com.tcc.planify_api.dto.contact.ContactDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Tag(name = "Contato")
+public interface ContactApi {
+
+  @Operation(summary = "Listar todos os contatos", description = "Retorna uma lista de todos os contatos cadastrados pelo profissional.")
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso. Retorna a lista de contatos."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @GetMapping
+  ResponseEntity<List<ContactDTO>> listContact();
+
+  @Operation(summary = "Criar um novo contato", description = "Cria um novo contato para o profissional logado.")
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Contato criado com sucesso."),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida. Os dados fornecidos não são válidos."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @PostMapping
+  ResponseEntity<ContactDTO> createContact(@Valid @RequestBody ContactCreateDTO contactCreateDTO);
+
+  @Operation(summary = "Atualizar um contato existente", description = "Atualiza os dados de um contato existente com o ID fornecido.")
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Contato atualizado com sucesso."),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida. O ID ou os dados fornecidos não são válidos."),
+        @ApiResponse(responseCode = "404", description = "Contato não encontrado."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @PutMapping("/{idContato}")
+  ResponseEntity<ContactDTO> updateContact(
+        @NotNull @PathVariable("idContato") Long idContato,
+        @Valid @RequestBody ContactCreateDTO contactCreateDTO) throws Exception;
+
+  @Operation(summary = "Deletar um contato", description = "Deleta o contato com o ID fornecido.")
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Contato excluído com sucesso."),
+        @ApiResponse(responseCode = "404", description = "Contato não encontrado."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @DeleteMapping("/{idContato}")
+  ResponseEntity<Void> deleteContact(@NotNull @PathVariable("idContato") Long idContato) throws Exception;
+}

@@ -23,7 +23,7 @@ public interface AuthApi {
   @Operation(summary = "Login", description = "Autentica por e-mail e senha.")
   @ApiResponse(responseCode = "200", description = "Login OK.")
   @PostMapping("/login")
-  ResponseEntity<UserDTO> login(@Valid @RequestBody UserLoginDTO loginDTO);
+  ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO loginDTO);
 
   @Operation(summary = "Atualizar usuário",
         description = "Atualiza os dados do usuário com base no ID fornecido.")

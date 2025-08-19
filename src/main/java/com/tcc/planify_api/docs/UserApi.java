@@ -1,7 +1,5 @@
 package com.tcc.planify_api.docs;
 
-import com.tcc.planify_api.dto.Auth.UserLoginDTO;
-import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
