@@ -11,7 +11,7 @@ public class ContactDTO extends ContactCreateDTO {
   private String phone;
   private String email;
   private String observation;
-
+  private String imageUrl;
   private Long professionalId;
   private LocalDateTime createdAt;
 }

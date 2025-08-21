@@ -36,6 +36,9 @@ public class ContactEntity {
   @JoinColumn(name = "professional_id", nullable = false)
   private UserEntity professional;
 
+  @Column(name = "image_url")
+  private String imageUrl;
+
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 }

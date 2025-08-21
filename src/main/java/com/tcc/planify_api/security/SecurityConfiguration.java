@@ -35,7 +35,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/clients/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/contacts/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/services/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/package/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/packages/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/calendar/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .anyRequest().hasRole("ADMIN")
           );
 

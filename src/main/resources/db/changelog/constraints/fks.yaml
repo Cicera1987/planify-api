@@ -117,7 +117,7 @@ databaseChangeLog:
             referencedTableName: contact
             referencedColumnNames: id
             constraintName: fk_scheduling_contact
-            onDelete: SET NULL
+            onDelete: RESTRICT
 
   - changeSet:
       id: fk-11-payment-scheduling
@@ -166,3 +166,15 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_notification_user
             onDelete: CASCADE
+
+  - changeSet:
+      id: fk-15-scheduling-calendar-time
+      author: cicera_ribeiro
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: scheduling
+            baseColumnNames: calendar_time_id
+            referencedTableName: calendar_time
+            referencedColumnNames: id
+            constraintName: fk_scheduling_calendar_time
+            onDelete: RESTRICT

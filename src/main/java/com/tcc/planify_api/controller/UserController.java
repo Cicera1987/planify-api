@@ -1,6 +1,7 @@
 package com.tcc.planify_api.controller;
 
 import com.tcc.planify_api.docs.UserApi;
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
 import com.tcc.planify_api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,13 @@ public class UserController implements UserApi {
   private final UserService userService;
 
   @Override
-  public ResponseEntity<List<UserDTO>> getAllUsers() {
-    return ResponseEntity.ok(userService.getAllUsers());
+  public ResponseEntity<PageDTO<UserDTO>> getAllUsers(int page, int size) {
+    return ResponseEntity.ok(userService.getAllUsers(page, size));
+  }
+
+  @Override
+  public ResponseEntity<PageDTO<UserDTO>> searchUsers(String name, String speciality, int page, int size) {
+    return ResponseEntity.ok(userService.getSearchUsers(name, speciality, page, size));
   }
 
   @Override

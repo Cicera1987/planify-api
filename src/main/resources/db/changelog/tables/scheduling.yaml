@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 7
+      id: 14
       author: cicera_ribeiro
       changes:
         - createTable:
@@ -12,15 +12,15 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: client_id
+                  name: professional_id
                   type: BIGINT
                   constraints:
                     nullable: false
               - column:
-                  name: professional_id
+                  name: contact_id
                   type: BIGINT
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: service_id
                   type: BIGINT
@@ -28,17 +28,15 @@ databaseChangeLog:
                   name: package_id
                   type: BIGINT
               - column:
-                  name: date
-                  type: DATE
-              - column:
-                  name: hours
-                  type: TIME
+                  name: calendar_time_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
               - column:
                   name: status
                   type: VARCHAR(50)
-              - column:
-                  name: contact_id
-                  type: BIGINT
+                  constraints:
+                    nullable: false
               - column:
                   name: created_at
                   type: TIMESTAMP

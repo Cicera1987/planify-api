@@ -19,7 +19,9 @@ databaseChangeLog:
   - include:
       file: db/changelog/tables/notification.yaml
   - include:
-      file: db/changelog/tables/calendar.yaml
+      file: db/changelog/tables/Calendar_day.yaml
+  - include:
+      file: db/changelog/tables/Calendar_time.yaml
 
   # Constraints
   - include:

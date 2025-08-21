@@ -31,6 +31,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: image_url
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
                   name: created_at
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP

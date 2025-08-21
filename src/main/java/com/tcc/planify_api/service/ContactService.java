@@ -15,10 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +52,7 @@ public class ContactService {
           .email(dto.getEmail() != null ? dto.getEmail() : null)
           .observation(dto.getObservation() != null ? dto.getObservation() : null)
           .professional(professional)
+          .imageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : null)
           .createdAt(LocalDateTime.now())
           .build();
 
@@ -68,6 +67,7 @@ public class ContactService {
     entity.setName(dto.getName());
     entity.setPhone(dto.getPhone());
     entity.setEmail(dto.getEmail());
+    entity.setImageUrl(dto.getImageUrl());
     entity.setObservation(dto.getObservation());
 
     entity = contactRepository.save(entity);
@@ -84,6 +84,7 @@ public class ContactService {
     dto.setName(entity.getName());
     dto.setPhone(entity.getPhone());
     dto.setEmail(entity.getEmail());
+    dto.setImageUrl(entity.getImageUrl());
     dto.setObservation(entity.getObservation());
     dto.setProfessionalId(entity.getProfessional().getId());
     dto.setCreatedAt(entity.getCreatedAt());

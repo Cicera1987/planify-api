@@ -31,5 +31,7 @@ public class UserCreateDTO {
   @Builder.Default
   private PositionEnum position = PositionEnum.PROFESSIONAL;
 
+  private String imageUrl;
+
   private Boolean active;
 }

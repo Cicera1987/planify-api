@@ -15,6 +15,7 @@ public class UserDTO {
   private String password;
   private String speciality;
   private PositionEnum position;
+  private String imageUrl;
   private boolean active;
 }
 

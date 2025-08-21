@@ -17,5 +17,7 @@ public class ContactCreateDTO {
   @Email(message = "Email inválido")
   private String email;
 
+  private String imageUrl;
+
   private String observation;
 }

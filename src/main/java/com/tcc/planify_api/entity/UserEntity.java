@@ -44,6 +44,9 @@ public class UserEntity implements UserDetails {
   @JoinColumn(name = "position_id", nullable = false)
   private PositionEntity position;
 
+  @Column(name = "image_url")
+  private String imageUrl;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of();

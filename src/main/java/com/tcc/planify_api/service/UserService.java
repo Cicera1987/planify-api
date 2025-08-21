@@ -1,5 +1,6 @@
 package com.tcc.planify_api.service;
 
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
 import com.tcc.planify_api.entity.PositionEntity;
@@ -7,14 +8,17 @@ import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.enums.PositionEnum;
 import com.tcc.planify_api.repository.PositionRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,7 @@ public class UserService {
           .password(passwordEncoder.encode(userCreateDTO.getPassword()))
           .speciality(userCreateDTO.getSpeciality())
           .position(position)
+          .imageUrl(userCreateDTO.getImageUrl())
           .active(Boolean.TRUE.equals(userCreateDTO.getActive()))
           .build();
 
@@ -50,10 +55,21 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
-  public List<UserDTO> getAllUsers() {
-    return userRepository.findAll().stream()
-          .map(this::mapToUserDTO)
-          .collect(Collectors.toList());
+  public PageDTO<UserDTO> getAllUsers(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("username").ascending());
+
+    Page<UserEntity> users = userRepository.findAll(pageable);
+
+    return PaginationUtil.toPageResponse(users, this::mapToUserDTO);
+  }
+
+  @Transactional(readOnly = true)
+  public PageDTO<UserDTO> getSearchUsers(String name, String speciality, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("username").ascending());
+
+    Page<UserEntity> users = userRepository.searchUsers(name, speciality, pageable);
+
+    return PaginationUtil.toPageResponse(users, this::mapToUserDTO);
   }
 
   @Transactional(readOnly = true)
@@ -78,6 +94,7 @@ public class UserService {
       user.setPosition(position);
     }
     if (updateDTO.getActive() != null) user.setActive(updateDTO.getActive());
+    if (updateDTO.getImageUrl() != null) user.setImageUrl(updateDTO.getImageUrl());
     if (updateDTO.getPassword() != null) user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
 
     return mapToUserDTO(userRepository.save(user));
@@ -103,6 +120,7 @@ public class UserService {
           .phone(userEntity.getPhone())
           .position(userEntity.getPosition().getPosition())
           .speciality(userEntity.getSpeciality())
+          .imageUrl(userEntity.getImageUrl())
           .active(userEntity.isActive())
           .build();
   }
