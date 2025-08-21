@@ -3,6 +3,7 @@ package com.tcc.planify_api.dto.contact;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ContactDTO extends ContactCreateDTO {
@@ -13,5 +14,6 @@ public class ContactDTO extends ContactCreateDTO {
   private String observation;
   private String imageUrl;
   private Long professionalId;
+  private List<Long> packageIds;
   private LocalDateTime createdAt;
 }

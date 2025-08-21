@@ -6,9 +6,8 @@ import com.tcc.planify_api.entity.TypeOfServiceEntity;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.repository.TypeOfServiceRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +23,7 @@ public class TypeOfServicesService {
 
   @Transactional
   public TypeOfServiceDTO createService(TypeOfServiceCreateDTO dto) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long ownerId = Long.parseLong(auth.getPrincipal().toString());
+    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
 
     UserEntity owner = userRepository.findById(ownerId)
           .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + ownerId));

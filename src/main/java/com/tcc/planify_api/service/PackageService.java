@@ -1,7 +1,7 @@
 package com.tcc.planify_api.service;
 
-import com.tcc.planify_api.dto.PackageServices.PackageCreateDTO;
-import com.tcc.planify_api.dto.PackageServices.PackageDTO;
+import com.tcc.planify_api.dto.packageServices.PackageCreateDTO;
+import com.tcc.planify_api.dto.packageServices.PackageDTO;
 import com.tcc.planify_api.dto.typeOfService.TypeOfServiceDTO;
 import com.tcc.planify_api.entity.PackageEntity;
 import com.tcc.planify_api.entity.PackageServiceEntity;
@@ -11,9 +11,8 @@ import com.tcc.planify_api.repository.PackageRepository;
 import com.tcc.planify_api.repository.PackageServiceRepository;
 import com.tcc.planify_api.repository.TypeOfServiceRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +33,7 @@ public class PackageService {
 
   @Transactional
   public PackageDTO createPackage(PackageCreateDTO dto) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long ownerId = Long.parseLong(auth.getPrincipal().toString());
-
+    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
     UserEntity owner = userRepository.findById(ownerId)
           .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + ownerId));
 
@@ -72,8 +69,7 @@ public class PackageService {
 
   @Transactional(readOnly = true)
   public List<PackageDTO> listPackagesByOwner() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long ownerId = Long.parseLong(auth.getPrincipal().toString());
+    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
 
     List<PackageEntity> packages = packageRepository.findByOwnerId(ownerId);
     List<PackageDTO> dtoList = new ArrayList<>();

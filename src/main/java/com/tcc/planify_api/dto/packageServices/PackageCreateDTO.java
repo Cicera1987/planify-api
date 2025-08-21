@@ -1,4 +1,4 @@
-package com.tcc.planify_api.dto.PackageServices;
+package com.tcc.planify_api.dto.packageServices;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

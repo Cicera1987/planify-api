@@ -1,7 +1,7 @@
 package com.tcc.planify_api.controller;
 import com.tcc.planify_api.docs.PackageServiceApi;
-import com.tcc.planify_api.dto.PackageServices.PackageCreateDTO;
-import com.tcc.planify_api.dto.PackageServices.PackageDTO;
+import com.tcc.planify_api.dto.packageServices.PackageCreateDTO;
+import com.tcc.planify_api.dto.packageServices.PackageDTO;
 import com.tcc.planify_api.service.PackageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

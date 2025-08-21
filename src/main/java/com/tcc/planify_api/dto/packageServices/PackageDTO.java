@@ -1,4 +1,4 @@
-package com.tcc.planify_api.dto.PackageServices;
+package com.tcc.planify_api.dto.packageServices;
 
 import com.tcc.planify_api.dto.typeOfService.TypeOfServiceDTO;
 import lombok.AllArgsConstructor;

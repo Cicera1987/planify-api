@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "contact")
@@ -38,6 +40,15 @@ public class ContactEntity {
 
   @Column(name = "image_url")
   private String imageUrl;
+
+  @ManyToMany
+  @JoinTable(
+        name = "contact_packages",
+        joinColumns = @JoinColumn(name = "contact_id"),
+        inverseJoinColumns = @JoinColumn(name = "package_id")
+  )
+  private List<PackageEntity> packages = new ArrayList<>();
+
 
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;

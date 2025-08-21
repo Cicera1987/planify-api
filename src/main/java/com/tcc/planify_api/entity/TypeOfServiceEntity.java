@@ -3,6 +3,9 @@ package com.tcc.planify_api.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.*;
 
 @Entity
@@ -43,5 +46,6 @@ public class TypeOfServiceEntity {
   public void prePersist() {
     this.createdAt = LocalDateTime.now();
   }
+
 }
 

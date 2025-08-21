@@ -13,11 +13,11 @@ public enum StatusAgendamento {
   NAO_COMPARECEU(7, "Não compareceu"),
   REMARCADO(8, "Remarcado");
 
-  private final int codigo;
-  private final String descricao;
+  private final int code;
+  private final String description;
 
-  StatusAgendamento(int codigo, String descricao) {
-    this.codigo = codigo;
-    this.descricao = descricao;
+  StatusAgendamento(int code, String description) {
+    this.code = code;
+    this.description = description;
   }
 }

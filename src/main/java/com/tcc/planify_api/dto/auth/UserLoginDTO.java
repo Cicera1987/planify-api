@@ -1,4 +1,4 @@
-package com.tcc.planify_api.dto.Auth;
+package com.tcc.planify_api.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

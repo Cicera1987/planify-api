@@ -4,18 +4,20 @@ import com.tcc.planify_api.dto.contact.ContactCreateDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
 import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.entity.ContactEntity;
+import com.tcc.planify_api.entity.PackageEntity;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.repository.ContactRepository;
+import com.tcc.planify_api.repository.PackageRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.AuthUtil;
 import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -24,6 +26,7 @@ public class ContactService {
 
   private final ContactRepository contactRepository;
   private final UserRepository userRepository;
+  private final PackageRepository packageRepository;
 
   public PageDTO<ContactDTO> getContacts(Pageable pageable) {
     Page<ContactEntity> page = contactRepository.findAll(pageable);
@@ -31,8 +34,7 @@ public class ContactService {
   }
 
   public PageDTO<ContactDTO> searchContacts(String name, Pageable pageable) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long professionalId = Long.parseLong(auth.getPrincipal().toString());
+    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
 
     Page<ContactEntity> page = contactRepository.findByProfessionalIdAndNameContainingIgnoreCase(professionalId, name, pageable);
     return PaginationUtil.toPageResponse(page, this::toDTO);
@@ -40,8 +42,7 @@ public class ContactService {
 
   @Transactional
   public ContactDTO createContact(ContactCreateDTO dto) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long professionalId = Long.parseLong(auth.getPrincipal().toString());
+    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
 
     UserEntity professional = userRepository.findById(professionalId)
           .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado com id: " + professionalId));
@@ -56,6 +57,10 @@ public class ContactService {
           .createdAt(LocalDateTime.now())
           .build();
 
+    if (dto.getPackageIds() != null && !dto.getPackageIds().isEmpty()) {
+      List<PackageEntity> packages = packageRepository.findAllById(dto.getPackageIds());
+      entity.setPackages(packages);
+    }
     entity = contactRepository.save(entity);
     return toDTO(entity);
   }
@@ -88,6 +93,12 @@ public class ContactService {
     dto.setObservation(entity.getObservation());
     dto.setProfessionalId(entity.getProfessional().getId());
     dto.setCreatedAt(entity.getCreatedAt());
+
+    dto.setPackageIds(
+          entity.getPackages().stream()
+                .map(PackageEntity::getId)
+                .toList()
+    );
     return dto;
   }
 }

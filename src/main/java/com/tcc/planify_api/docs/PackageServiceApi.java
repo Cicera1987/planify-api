@@ -1,7 +1,7 @@
 package com.tcc.planify_api.docs;
 
-import com.tcc.planify_api.dto.PackageServices.PackageCreateDTO;
-import com.tcc.planify_api.dto.PackageServices.PackageDTO;
+import com.tcc.planify_api.dto.packageServices.PackageCreateDTO;
+import com.tcc.planify_api.dto.packageServices.PackageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

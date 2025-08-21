@@ -8,6 +8,7 @@ import com.tcc.planify_api.entity.CalendarDayEntity;
 import com.tcc.planify_api.entity.CalendarTimeEntity;
 import com.tcc.planify_api.repository.CalendarDayRepository;
 import com.tcc.planify_api.repository.CalendarTimeRepository;
+import com.tcc.planify_api.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,8 +26,7 @@ public class CalendarService {
 
   @Transactional
   public List<CalendarDayDTO> createDay(List<CalendarDayCreateDTO> dayDTOs) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Long userId = Long.parseLong(auth.getPrincipal().toString());
+    Long userId = AuthUtil.getAuthenticatedProfessionalId();
 
     List<CalendarDayEntity> days = dayDTOs.stream().map(dto -> {
       CalendarDayEntity day = new CalendarDayEntity();

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,8 @@ public class ContactCreateDTO {
   private String email;
 
   private String imageUrl;
+
+  private List<Long> packageIds;
 
   private String observation;
 }

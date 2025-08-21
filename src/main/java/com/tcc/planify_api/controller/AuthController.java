@@ -1,7 +1,7 @@
 package com.tcc.planify_api.controller;
 
 import com.tcc.planify_api.docs.AuthApi;
-import com.tcc.planify_api.dto.Auth.UserLoginDTO;
+import com.tcc.planify_api.dto.auth.UserLoginDTO;
 import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
 
