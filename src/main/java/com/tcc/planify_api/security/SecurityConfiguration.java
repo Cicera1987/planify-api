@@ -32,14 +32,14 @@ public class SecurityConfiguration {
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                .requestMatchers("/users/**").hasRole("ROLE_ADMIN")
-                .requestMatchers("/clients/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .requestMatchers("/contacts/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .requestMatchers("/services/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .requestMatchers("/packages/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .requestMatchers("/calendar/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .requestMatchers("/scheduling/**").hasAnyRole("ROLE_ADMIN", "ROLE_PROFESSIONAL")
-                .anyRequest().hasRole("ROLE_ADMIN")
+                .requestMatchers("/users/**").hasRole("ADMIN")
+                .requestMatchers("/clients/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/contacts/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/services/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/packages/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/calendar/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/scheduling/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .anyRequest().hasRole("ADMIN")
           );
 
     http.addFilterBefore(
