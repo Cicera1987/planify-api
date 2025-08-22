@@ -6,9 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,7 +14,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -28,9 +24,10 @@ public class SecurityConfiguration {
     http
           .headers(headers -> headers.frameOptions(frame -> frame.disable()))
           .cors(cors -> {})
-          .csrf(AbstractHttpConfigurer::disable)
+          .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 .requestMatchers("/users/**").hasRole("ADMIN")
                 .requestMatchers("/clients/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/contacts/**").hasAnyRole("ADMIN", "PROFESSIONAL")
@@ -50,16 +47,6 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-    return (web) -> web.ignoring().requestMatchers(
-          "/v3/api-docs",
-          "/v3/api-docs/**",
-          "/swagger-resources/**",
-          "/swagger-ui/**"
-    );
-  }
-
-  @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override
@@ -72,8 +59,8 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    return authenticationConfiguration.getAuthenticationManager();
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    return authConfig.getAuthenticationManager();
   }
 
   @Bean
