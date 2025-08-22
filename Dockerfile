@@ -1,12 +1,18 @@
-FROM eclipse-temurin:21-jdk
-WORKDIR /app
+FROM ubuntu:latest AS build
+
+RUN apt-get update
+RUN apt-get install openjdk-21-jdk -y
+COPY . .
+
+RUN apt-get install maven -y
+RUN mvn clear install
+
+
+FROM openjdk:21-jdk-slim
+
 EXPOSE 8080
 
-# Nome exato do JAR gerado
 ARG JAR_FILE=target/planify-api-0.0.1-SNAPSHOT.jar
-
-# Copia o JAR para dentro do container
-ADD ${JAR_FILE} app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
