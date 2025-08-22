@@ -13,5 +13,6 @@ import java.util.Optional;
 public interface PositionRepository extends JpaRepository<PositionEntity, Long> {
   @Query("SELECT p FROM position p WHERE p.position = :position")
   Optional<PositionEntity> findByPosition(@Param("position") PositionEnum position);
+  boolean existsByPosition(PositionEnum position);
 }
 

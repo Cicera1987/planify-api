@@ -1,10 +1,14 @@
 package com.tcc.planify_api.config;
+import com.tcc.planify_api.entity.PositionEntity;
+import com.tcc.planify_api.enums.PositionEnum;
+import com.tcc.planify_api.repository.PositionRepository;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,8 +19,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class OpenApiConfig {
 
     private static final String SECURITY_SCHEME_NAME = "bearerAuth";
+    private final PositionRepository positionRepository;
 
-    @Bean
+  public OpenApiConfig(PositionRepository positionRepository) {
+    this.positionRepository = positionRepository;
+  }
+
+  @Bean
     public OpenAPI springShopOpenAPI() {
       return new OpenAPI()
             .info(new Info()
@@ -36,5 +45,16 @@ public class OpenApiConfig {
                   )
             );
     }
+
+  @Bean
+  public CommandLineRunner loadPositions() {
+    return args -> {
+      for (PositionEnum pos : PositionEnum.values()) {
+        if (!positionRepository.existsByPosition(pos)) {
+          positionRepository.save(PositionEntity.builder().position(pos).build());
+        }
+      }
+    };
+  }
 }
 
