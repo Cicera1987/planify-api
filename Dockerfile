@@ -1,20 +1,24 @@
-FROM ubuntu:latest AS build
+# Etapa de build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-RUN apt-get update
-RUN apt-get install openjdk-21-jdk -y
-COPY . .
+WORKDIR /app
 
-RUN apt-get install maven -y
-RUN mvn clear install
+# Copia o pom.xml e baixa dependências (para cache eficiente)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests
 
+FROM eclipse-temurin:21-jdk-jammy
 
-FROM openjdk:21-jdk-slim
+WORKDIR /app
+
+COPY --from=build /app/target/planify-api-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
-ARG JAR_FILE=target/planify-api-0.0.1-SNAPSHOT.jar
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 
 
