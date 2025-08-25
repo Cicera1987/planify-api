@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PaginationUtil {
-  public static <E, D> PageDTO<D> toPageResponse(Page<E> page, Function<E, D> converter) {
+  public static <E, D> PageDTO<D> toPageResponse(Page<E> page, Function<E, D> converter, String apiVersion) {
     List<D> content = page.stream()
           .map(converter)
           .collect(Collectors.toList());
@@ -16,7 +16,8 @@ public class PaginationUtil {
           page.getNumber() + 1,
           page.getSize(),
           (int) page.getTotalElements(),
-          page.getTotalPages()
+          page.getTotalPages(),
+          apiVersion
     );
   }
 }

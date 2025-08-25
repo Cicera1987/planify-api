@@ -9,6 +9,7 @@ import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.repository.ContactRepository;
 import com.tcc.planify_api.repository.PackageRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.ApiVersionProvider;
 import com.tcc.planify_api.util.AuthUtil;
 import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,17 +28,18 @@ public class ContactService {
   private final ContactRepository contactRepository;
   private final UserRepository userRepository;
   private final PackageRepository packageRepository;
+  private final ApiVersionProvider versionProvider;
 
   public PageDTO<ContactDTO> getContacts(Pageable pageable) {
     Page<ContactEntity> page = contactRepository.findAll(pageable);
-    return PaginationUtil.toPageResponse(page, this::toDTO);
+    return PaginationUtil.toPageResponse(page, this::toDTO, versionProvider.getVersion());
   }
 
   public PageDTO<ContactDTO> searchContacts(String name, Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
 
     Page<ContactEntity> page = contactRepository.findByProfessionalIdAndNameContainingIgnoreCase(professionalId, name, pageable);
-    return PaginationUtil.toPageResponse(page, this::toDTO);
+    return PaginationUtil.toPageResponse(page, this::toDTO, versionProvider.getVersion());
   }
 
   @Transactional

@@ -8,6 +8,7 @@ import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.enums.PositionEnum;
 import com.tcc.planify_api.repository.PositionRepository;
 import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.util.ApiVersionProvider;
 import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final PositionRepository positionRepository;
+  private final ApiVersionProvider versionProvider;
 
   public Optional<UserEntity> findByLogin(String username) {
     return userRepository.findByUsername(username);
@@ -60,7 +62,7 @@ public class UserService {
 
     Page<UserEntity> users = userRepository.findAll(pageable);
 
-    return PaginationUtil.toPageResponse(users, this::mapToUserDTO);
+    return PaginationUtil.toPageResponse(users, this::mapToUserDTO, versionProvider.getVersion());
   }
 
   @Transactional(readOnly = true)
@@ -69,7 +71,7 @@ public class UserService {
 
     Page<UserEntity> users = userRepository.searchUsers(name, speciality, pageable);
 
-    return PaginationUtil.toPageResponse(users, this::mapToUserDTO);
+    return PaginationUtil.toPageResponse(users, this::mapToUserDTO,  versionProvider.getVersion());
   }
 
   @Transactional(readOnly = true)

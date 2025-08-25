@@ -14,4 +14,5 @@ public class PageDTO<T> {
   private Integer pageSize;
   private  Integer totalElements;
   private  Integer totalPages;
+  private String apiVersion;
 }
