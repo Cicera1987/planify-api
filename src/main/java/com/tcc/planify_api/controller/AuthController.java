@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -35,14 +37,15 @@ public class AuthController implements AuthApi {
   }
 
   @Override
-  public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO loginDTO) {
+  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDTO loginDTO) {
     UserDTO user = userService.login(loginDTO.getEmail(), loginDTO.getPassword());
     UserEntity userEntity = userService.findByLogin(user.getUsername())
           .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
     String token = tokenService.generateToken(userEntity);
 
-    return ResponseEntity.ok(token);
+    return ResponseEntity.ok(Map.of("token", token));
   }
+
 
   @Override
   public ResponseEntity<UserDTO> updateUser(Long id, @Valid @RequestBody UserCreateDTO userUpdateDTO) {

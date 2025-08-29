@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Tag(name = "Auth")
 public interface AuthApi {
 
@@ -24,7 +26,7 @@ public interface AuthApi {
   @Operation(summary = "Login", description = "Autentica por e-mail e senha.")
   @ApiResponse(responseCode = "200", description = "Login OK.")
   @PostMapping("/login")
-  ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO loginDTO);
+  ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDTO loginDTO);
 
   @Operation(summary = "Atualizar usuário",
         description = "Atualiza os dados do usuário com base no ID fornecido.")
