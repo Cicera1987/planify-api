@@ -29,8 +29,18 @@ public class UserController implements UserApi {
 
   @Override
   public ResponseEntity<UserDTO> getUserById(Long id) {
-    Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Long userId;
+    if (principal instanceof String) {
+      userId = Long.parseLong((String) principal);
+    } else if (principal instanceof Long) {
+      userId = (Long) principal;
+    } else {
+      throw new IllegalStateException("Principal inválido no SecurityContext");
+    }
+
     UserDTO user = userService.getUserById(userId);
     return ResponseEntity.ok(user);
   }
+
 }
