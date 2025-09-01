@@ -1,12 +1,16 @@
 package com.tcc.planify_api.security;
 
 import com.tcc.planify_api.entity.UserEntity;
+import com.tcc.planify_api.repository.UserRepository;
+import com.tcc.planify_api.service.CustomUserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -18,6 +22,7 @@ import java.util.stream.Collectors;
 public class TokenService {
   private static final String TOKEN_PREFIX = "Bearer";
   private static final String POSITION_CLAIM = "position";
+  private final UserRepository userRepository;
 
   @Value("${jwt.expiration}")
   private String expiration;
@@ -34,6 +39,7 @@ public class TokenService {
     return TOKEN_PREFIX + " " +
           Jwts.builder()
                 .setIssuer("planify-api")
+                .setSubject(userEntity.getUsername())
                 .claim(Claims.ID, userEntity.getId().toString())
                 .claim(POSITION_CLAIM, roles)
                 .setIssuedAt(now)
@@ -55,26 +61,33 @@ public class TokenService {
     return userId != null ? Long.parseLong(userId) : null;
   }
 
-
   public UsernamePasswordAuthenticationToken isValid(String token) {
-    if (token != null) {
-      Claims body = Jwts.parserBuilder()
+    try {
+      Claims claims = Jwts.parserBuilder()
             .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
             .build()
             .parseClaimsJws(token.replace(TOKEN_PREFIX, "").trim())
             .getBody();
 
-      String userId = body.get(Claims.ID, String.class);
-      List<String> roles = body.get(POSITION_CLAIM, List.class);
+      String username = claims.getSubject();
+      Long userId = claims.get(Claims.ID, Long.class);
 
-      if (userId != null && roles != null) {
-        List<SimpleGrantedAuthority> authorities = roles.stream()
-              .map(SimpleGrantedAuthority::new)
-              .collect(Collectors.toList());
+      List<String> roles = claims.get(POSITION_CLAIM, List.class);
+      List<GrantedAuthority> authorities = roles.stream()
+            .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
+            .toList();
 
-        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
-      }
+      CustomUserPrincipal principal = new CustomUserPrincipal(
+            userId,
+            username,
+            null,
+            authorities
+      );
+
+      return new UsernamePasswordAuthenticationToken(principal, null, authorities);
+
+    } catch (JwtException e) {
+      return null;
     }
-    return null;
   }
 }
