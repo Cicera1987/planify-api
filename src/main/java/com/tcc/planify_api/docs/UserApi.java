@@ -37,6 +37,6 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "Não encontrado.")
   })
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal")
+  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   ResponseEntity<UserDTO> getUserById(@PathVariable("id") Long id);
 }

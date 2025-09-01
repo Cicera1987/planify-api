@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.*;
+
 
 import java.util.Date;
 import java.util.List;
@@ -20,8 +22,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
+
   private static final String TOKEN_PREFIX = "Bearer";
   private static final String POSITION_CLAIM = "position";
+
   private final UserRepository userRepository;
 
   @Value("${jwt.expiration}")
@@ -40,7 +44,7 @@ public class TokenService {
           Jwts.builder()
                 .setIssuer("planify-api")
                 .setSubject(userEntity.getUsername())
-                .claim(Claims.ID, userEntity.getId().toString())
+                .claim(Claims.ID, userEntity.getId().toString()) // salvar como string
                 .claim(POSITION_CLAIM, roles)
                 .setIssuedAt(now)
                 .setExpiration(exp)
@@ -70,19 +74,14 @@ public class TokenService {
             .getBody();
 
       String username = claims.getSubject();
-      Long userId = claims.get(Claims.ID, Long.class);
+      Long userId = Long.parseLong(claims.get(Claims.ID, String.class));
 
       List<String> roles = claims.get(POSITION_CLAIM, List.class);
       List<GrantedAuthority> authorities = roles.stream()
-            .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
-            .toList();
+            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+            .collect(Collectors.toList());
 
-      CustomUserPrincipal principal = new CustomUserPrincipal(
-            userId,
-            username,
-            null,
-            authorities
-      );
+      CustomUserPrincipal principal = new CustomUserPrincipal(userId, username, null, authorities);
 
       return new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
