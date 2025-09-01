@@ -6,6 +6,7 @@ import com.tcc.planify_api.dto.user.UserDTO;
 import com.tcc.planify_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +29,8 @@ public class UserController implements UserApi {
 
   @Override
   public ResponseEntity<UserDTO> getUserById(Long id) {
-    return ResponseEntity.ok(userService.getUserById(id));
+    Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    UserDTO user = userService.getUserById(userId);
+    return ResponseEntity.ok(user);
   }
 }

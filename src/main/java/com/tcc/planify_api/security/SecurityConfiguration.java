@@ -23,7 +23,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfiguration {
 
   private final TokenService tokenService;
-  private final UserService userService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,7 +44,7 @@ public class SecurityConfiguration {
           );
 
     http.addFilterBefore(
-          new TokenAuthenticationFilter(tokenService, userService),
+          new TokenAuthenticationFilter(tokenService),
           UsernamePasswordAuthenticationFilter.class
     );
 
