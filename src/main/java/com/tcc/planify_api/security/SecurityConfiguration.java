@@ -20,7 +20,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-
   private final TokenService tokenService;
 
   @Bean
