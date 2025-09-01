@@ -114,6 +114,12 @@ public class UserService {
     return mapToUserDTO(user);
   }
 
+  @Transactional(readOnly = true)
+  public UserEntity getUserEntityById(Long id) {
+    return userRepository.findById(id)
+          .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + id));
+  }
+
   private UserDTO mapToUserDTO(UserEntity userEntity) {
     return UserDTO.builder()
           .id(userEntity.getId())

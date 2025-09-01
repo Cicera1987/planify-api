@@ -1,5 +1,6 @@
 package com.tcc.planify_api.security;
 
+import com.tcc.planify_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfiguration {
 
   private final TokenService tokenService;
+  private final UserService userService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -32,7 +34,7 @@ public class SecurityConfiguration {
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/health").permitAll()
-                .requestMatchers("/users/**").hasAnyRole("ADMIN, PROFESSIONAL")
+                .requestMatchers("/users/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/clients/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/contacts/**").hasAnyRole("ADMIN", "PROFESSIONAL")
                 .requestMatchers("/services/**").hasAnyRole("ADMIN", "PROFESSIONAL")
@@ -43,7 +45,7 @@ public class SecurityConfiguration {
           );
 
     http.addFilterBefore(
-          new TokenAuthenticationFilter(tokenService),
+          new TokenAuthenticationFilter(tokenService, userService),
           UsernamePasswordAuthenticationFilter.class
     );
 

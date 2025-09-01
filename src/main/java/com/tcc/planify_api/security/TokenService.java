@@ -42,6 +42,20 @@ public class TokenService {
                 .compact();
   }
 
+  public Long getUserIdFromToken(String token) {
+    if (token == null || token.isBlank()) return null;
+
+    Claims body = Jwts.parserBuilder()
+          .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+          .build()
+          .parseClaimsJws(token.replace(TOKEN_PREFIX, "").trim())
+          .getBody();
+
+    String userId = body.get(Claims.ID, String.class);
+    return userId != null ? Long.parseLong(userId) : null;
+  }
+
+
   public UsernamePasswordAuthenticationToken isValid(String token) {
     if (token != null) {
       Claims body = Jwts.parserBuilder()
