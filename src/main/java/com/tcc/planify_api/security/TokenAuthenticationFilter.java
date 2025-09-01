@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -20,17 +19,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  FilterChain filterChain)
-        throws ServletException, IOException {
+                                  FilterChain filterChain) throws ServletException, IOException {
 
-    String token = getTokenFromHeader(request);
+    String tokenFromHeader = getTokenFromHeader(request);
 
-    if (token != null && !token.isBlank()) {
-      Long userId = tokenService.getUserIdFromToken(token);
-      if (userId != null) {
-        UsernamePasswordAuthenticationToken authentication =
-              new UsernamePasswordAuthenticationToken(userId, null, List.of());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    if (tokenFromHeader != null && !tokenFromHeader.isBlank()) {
+      UsernamePasswordAuthenticationToken auth = tokenService.isValid(tokenFromHeader);
+      if (auth != null) {
+        SecurityContextHolder.getContext().setAuthentication(auth);
       }
     }
 
