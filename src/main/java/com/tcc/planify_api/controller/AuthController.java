@@ -5,6 +5,7 @@ import com.tcc.planify_api.dto.auth.UserLoginDTO;
 import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
 
+import com.tcc.planify_api.dto.user.UserUpdateDTO;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.security.TokenService;
 import com.tcc.planify_api.service.AuthenticationService;
@@ -48,7 +49,7 @@ public class AuthController implements AuthApi {
 
 
   @Override
-  public ResponseEntity<UserDTO> updateUser(Long id, @Valid @RequestBody UserCreateDTO userUpdateDTO) {
+  public ResponseEntity<UserDTO> updateUser(Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
     UserDTO updatedUser = userService.updateUser(id, userUpdateDTO);
     return ResponseEntity.ok(updatedUser);
   }
