@@ -3,6 +3,7 @@ package com.tcc.planify_api.service;
 import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
+import com.tcc.planify_api.dto.user.UserUpdateDTO;
 import com.tcc.planify_api.entity.PositionEntity;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.enums.PositionEnum;
@@ -15,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,25 +86,34 @@ public class UserService {
   }
 
   @Transactional
-  public UserDTO updateUser(Long id, UserCreateDTO updateDTO) {
+  public UserDTO updateUser(Long id, UserUpdateDTO updateDTO) {
     UserEntity user = userRepository.findById(id)
           .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + id));
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    boolean isAdmin = auth.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
 
     if (updateDTO.getUsername() != null) user.setUsername(updateDTO.getUsername());
     if (updateDTO.getEmail() != null) user.setEmail(updateDTO.getEmail());
     if (updateDTO.getPhone() != null) user.setPhone(updateDTO.getPhone());
     if (updateDTO.getSpeciality() != null) user.setSpeciality(updateDTO.getSpeciality());
-    if (updateDTO.getPosition() != null) {
-      PositionEntity position = positionRepository.findByPosition(updateDTO.getPosition())
-            .orElseThrow(() -> new IllegalArgumentException("Cargo inválido: " + updateDTO.getPosition()));
-      user.setPosition(position);
-    }
-    if (updateDTO.getActive() != null) user.setActive(updateDTO.getActive());
     if (updateDTO.getImageUrl() != null) user.setImageUrl(updateDTO.getImageUrl());
-    if (updateDTO.getPassword() != null) user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
+
+    if (isAdmin) {
+      if (updateDTO.getPosition() != null) {
+        PositionEnum positionEnum = updateDTO.getPosition();
+        PositionEntity position = positionRepository.findByPosition(positionEnum)
+              .orElseThrow(() -> new IllegalArgumentException("Cargo inválido: " + positionEnum));
+        user.setPosition(position);
+      }
+      if (updateDTO.getActive() != null) {
+        user.setActive(updateDTO.getActive());
+      }
+    }
 
     return mapToUserDTO(userRepository.save(user));
   }
+
 
   @Transactional(readOnly = true)
   public UserDTO login(String email, String rawPassword) {
