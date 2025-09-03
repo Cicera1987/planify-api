@@ -1,5 +1,7 @@
 package com.tcc.planify_api.service;
 
+import com.tcc.planify_api.dto.calendar.CalendarDayDTO;
+import com.tcc.planify_api.dto.calendar.CalendarTimeDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingCreateDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
@@ -43,7 +45,7 @@ public class SchedulingService {
     List<SchedulingEntity> schedulings = schedulingRepository.findActiveSchedulings(professionalId, activeStatuses);
 
     return schedulings.stream()
-          .map(this::mapToDTO)
+          .map(this::mapToDTOWithContact)
           .collect(Collectors.toList());
   }
 
@@ -54,7 +56,7 @@ public class SchedulingService {
     List<SchedulingEntity> schedulings = schedulingRepository.findSchedulingHistory(professionalId, startDate, endDate, statuses);
 
     return schedulings.stream()
-          .map(this::mapToDTO)
+          .map(this::mapToDTOWithContact)
           .collect(Collectors.toList());
   }
 
@@ -125,7 +127,7 @@ public class SchedulingService {
     }
 
     scheduling = schedulingRepository.save(scheduling);
-    return mapToDTO(scheduling);
+    return mapToDTOWithContact(scheduling);
   }
 
 
@@ -148,7 +150,7 @@ public class SchedulingService {
     scheduling.setStatus(newStatus.getDescription());
     schedulingRepository.save(scheduling);
 
-    return mapToDTO(scheduling);
+    return mapToDTOWithContact(scheduling);
   }
 
   @Transactional
@@ -184,10 +186,11 @@ public class SchedulingService {
     packageServiceRepository.save(ps);
   }
 
-  private SchedulingDTO mapToDTO(SchedulingEntity entity) {
+  private SchedulingDTO mapToDTOWithContact(SchedulingEntity entity) {
     SchedulingDTO dto = new SchedulingDTO();
     dto.setId(entity.getId());
 
+    // Contato
     ContactEntity contact = entity.getContact();
     ContactDTO contactDTO = new ContactDTO();
     contactDTO.setId(contact.getId());
@@ -195,11 +198,27 @@ public class SchedulingService {
     contactDTO.setEmail(contact.getEmail());
     contactDTO.setPhone(contact.getPhone());
     contactDTO.setImageUrl(contact.getImageUrl());
-
+    contactDTO.setObservation(contact.getObservation());
     dto.setContact(contactDTO);
 
+    // Pacote
     dto.setPackageId(entity.getPackageEntity() != null ? entity.getPackageEntity().getId() : null);
-    dto.setCalendarTimeId(entity.getCalendarTime().getId());
+
+    // Dia
+    CalendarDayEntity day = entity.getCalendarDay();
+    CalendarDayDTO dayDTO = new CalendarDayDTO();
+    dayDTO.setId(day.getId());
+    dayDTO.setUserId(day.getUserId());
+    dayDTO.setLocalDate(day.getLocalDate());
+    dto.setCalendarDay(dayDTO);
+
+    // Horário
+    CalendarTimeEntity time = entity.getCalendarTime();
+    CalendarTimeDTO timeDTO = new CalendarTimeDTO();
+    timeDTO.setId(time.getId());
+    timeDTO.setTime(time.getTime());
+    dto.setCalendarTime(timeDTO);
+
     dto.setStatus(entity.getStatus());
     dto.setCreatedAt(entity.getCreatedAt());
 
@@ -212,6 +231,4 @@ public class SchedulingService {
 
     return dto;
   }
-
-
 }

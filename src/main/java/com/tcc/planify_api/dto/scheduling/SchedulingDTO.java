@@ -1,5 +1,7 @@
 package com.tcc.planify_api.dto.scheduling;
 
+import com.tcc.planify_api.dto.calendar.CalendarDayDTO;
+import com.tcc.planify_api.dto.calendar.CalendarTimeDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +20,8 @@ public class SchedulingDTO {
   private ContactDTO contact;
   private List<Long> serviceId;
   private Long packageId;
-  private Long calendarTimeId;
+  private CalendarDayDTO calendarDay;
+  private CalendarTimeDTO calendarTime;
   private String status;
   private LocalDateTime createdAt;
 }
