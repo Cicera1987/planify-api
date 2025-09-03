@@ -1,5 +1,6 @@
 package com.tcc.planify_api.service;
 
+import com.tcc.planify_api.dto.contact.ContactDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingCreateDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
 import com.tcc.planify_api.entity.*;
@@ -186,7 +187,17 @@ public class SchedulingService {
   private SchedulingDTO mapToDTO(SchedulingEntity entity) {
     SchedulingDTO dto = new SchedulingDTO();
     dto.setId(entity.getId());
-    dto.setContactId(entity.getContact().getId());
+
+    ContactEntity contact = entity.getContact();
+    ContactDTO contactDTO = new ContactDTO();
+    contactDTO.setId(contact.getId());
+    contactDTO.setName(contact.getName());
+    contactDTO.setEmail(contact.getEmail());
+    contactDTO.setPhone(contact.getPhone());
+    contactDTO.setImageUrl(contact.getImageUrl());
+
+    dto.setContact(contactDTO);
+
     dto.setPackageId(entity.getPackageEntity() != null ? entity.getPackageEntity().getId() : null);
     dto.setCalendarTimeId(entity.getCalendarTime().getId());
     dto.setStatus(entity.getStatus());
@@ -198,6 +209,7 @@ public class SchedulingService {
             .toList();
       dto.setServiceId(serviceIds);
     }
+
     return dto;
   }
 

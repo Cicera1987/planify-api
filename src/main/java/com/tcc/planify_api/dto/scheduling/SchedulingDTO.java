@@ -1,5 +1,6 @@
 package com.tcc.planify_api.dto.scheduling;
 
+import com.tcc.planify_api.dto.contact.ContactDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SchedulingDTO {
   private Long id;
-  private Long contactId;
+  private ContactDTO contact;
   private List<Long> serviceId;
   private Long packageId;
   private Long calendarTimeId;

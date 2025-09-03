@@ -9,25 +9,30 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Long> {
+
   boolean existsByCalendarTimeAndProfessional(CalendarTimeEntity calendarTime, UserEntity professional);
 
-  // Buscar agendamentos ativos por profissional, ordenados pelo horário
-  @Query("SELECT s FROM SchedulingEntity s " +
-        "WHERE s.professional.id = :professionalId " +
-        "AND s.status IN :activeStatuses " +
-        "ORDER BY s.calendarDay.localDate ASC, s.calendarTime.time ASC")
+  @Query("""
+        SELECT s FROM SchedulingEntity s
+        JOIN FETCH s.contact c
+        WHERE s.professional.id = :professionalId
+          AND s.status IN :activeStatuses
+        ORDER BY s.calendarDay.localDate ASC, s.calendarTime.time ASC
+    """)
   List<SchedulingEntity> findActiveSchedulings(Long professionalId, List<String> activeStatuses);
 
-  @Query("SELECT s FROM SchedulingEntity s " +
-        "WHERE s.professional.id = :professionalId " +
-        "AND (:startDate IS NULL OR s.calendarDay.localDate >= :startDate) " +
-        "AND (:endDate IS NULL OR s.calendarDay.localDate <= :endDate) " +
-        "AND (:statuses IS NULL OR s.status IN :statuses) " +
-        "ORDER BY s.calendarDay.localDate ASC, s.calendarTime.time ASC")
+  @Query("""
+        SELECT s FROM SchedulingEntity s
+        JOIN FETCH s.contact c
+        WHERE s.professional.id = :professionalId
+          AND (:startDate IS NULL OR s.calendarDay.localDate >= :startDate)
+          AND (:endDate IS NULL OR s.calendarDay.localDate <= :endDate)
+          AND (:statuses IS NULL OR s.status IN :statuses)
+        ORDER BY s.calendarDay.localDate ASC, s.calendarTime.time ASC
+    """)
   List<SchedulingEntity> findSchedulingHistory(Long professionalId,
                                                LocalDate startDate,
                                                LocalDate endDate,
