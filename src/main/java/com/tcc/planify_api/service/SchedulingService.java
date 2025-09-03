@@ -30,7 +30,7 @@ public class SchedulingService {
 
   @Transactional(readOnly = true)
   public List<SchedulingDTO> getActiveSchedulingsForProfessional() {
-    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     List<String> activeStatuses = Arrays.asList(
           StatusAgendamento.AGENDADO.getDescription(),
@@ -48,7 +48,7 @@ public class SchedulingService {
 
   @Transactional(readOnly = true)
   public List<SchedulingDTO> getSchedulingHistory(LocalDate startDate, LocalDate endDate, List<String> statuses) {
-    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     List<SchedulingEntity> schedulings = schedulingRepository.findSchedulingHistory(professionalId, startDate, endDate, statuses);
 
@@ -59,7 +59,7 @@ public class SchedulingService {
 
   @Transactional
   public SchedulingDTO createScheduling(SchedulingCreateDTO dto) {
-    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     // Profissional
     UserEntity professional = userRepository.findById(professionalId)

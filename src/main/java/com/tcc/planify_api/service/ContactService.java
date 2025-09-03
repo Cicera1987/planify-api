@@ -36,7 +36,7 @@ public class ContactService {
   }
 
   public PageDTO<ContactDTO> searchContacts(String name, Pageable pageable) {
-    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     Page<ContactEntity> page = contactRepository.findByProfessionalIdAndNameContainingIgnoreCase(professionalId, name, pageable);
     return PaginationUtil.toPageResponse(page, this::toDTO, versionProvider.getVersion());
@@ -44,7 +44,7 @@ public class ContactService {
 
   @Transactional
   public ContactDTO createContact(ContactCreateDTO dto) {
-    Long professionalId = AuthUtil.getAuthenticatedProfessionalId();
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     UserEntity professional = userRepository.findById(professionalId)
           .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado com id: " + professionalId));

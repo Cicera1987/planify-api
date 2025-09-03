@@ -23,7 +23,7 @@ public class TypeOfServicesService {
 
   @Transactional
   public TypeOfServiceDTO createService(TypeOfServiceCreateDTO dto) {
-    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
+    Long ownerId = AuthUtil.getAuthenticatedUserId();
 
     UserEntity owner = userRepository.findById(ownerId)
           .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + ownerId));

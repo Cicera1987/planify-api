@@ -33,7 +33,7 @@ public class PackageService {
 
   @Transactional
   public PackageDTO createPackage(PackageCreateDTO dto) {
-    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
+    Long ownerId = AuthUtil.getAuthenticatedUserId();
     UserEntity owner = userRepository.findById(ownerId)
           .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + ownerId));
 
@@ -69,7 +69,7 @@ public class PackageService {
 
   @Transactional(readOnly = true)
   public List<PackageDTO> listPackagesByOwner() {
-    Long ownerId = AuthUtil.getAuthenticatedProfessionalId();
+    Long ownerId = AuthUtil.getAuthenticatedUserId();
 
     List<PackageEntity> packages = packageRepository.findByOwnerId(ownerId);
     List<PackageDTO> dtoList = new ArrayList<>();
