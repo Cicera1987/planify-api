@@ -1,6 +1,7 @@
 package com.tcc.planify_api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +29,8 @@ public class UserEntity implements UserDetails {
   @Column(name = "password", nullable = false)
   private String password;
 
-  @Column(name = "email", nullable = false)
+  @Column(nullable = false, unique = true)
+  @Email(message = "Email inválido")
   private String email;
 
   @Column(name = "speciality", nullable = false)

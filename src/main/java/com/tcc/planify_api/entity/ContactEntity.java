@@ -1,6 +1,8 @@
 package com.tcc.planify_api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,9 +28,11 @@ public class ContactEntity {
   private String name;
 
   @Column(nullable = false)
+  @Pattern(regexp = "\\d{10,11}", message = "O telefone deve conter apenas números e ter 10 ou 11 dígitos")
   private String phone;
 
-  @Column
+  @Column(nullable = false, unique = true)
+  @Email(message = "Email inválido")
   private String email;
 
   @Column
