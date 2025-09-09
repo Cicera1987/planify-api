@@ -50,4 +50,9 @@ public class SchedulingController implements SchedulingApi {
     schedulingService.deleteScheduling(idScheduling);
     return ResponseEntity.noContent().build();
   }
+
+  @Override
+  public ResponseEntity<List<SchedulingDTO>> searchSchedulingsByContactName(String name) {
+    return ResponseEntity.ok(schedulingService.searchSchedulingsByContactName(name));
+  }
 }

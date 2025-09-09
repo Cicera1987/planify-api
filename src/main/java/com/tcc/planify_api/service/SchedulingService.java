@@ -186,6 +186,17 @@ public class SchedulingService {
     packageServiceRepository.save(ps);
   }
 
+  @Transactional(readOnly = true)
+  public List<SchedulingDTO> searchSchedulingsByContactName(String name) {
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
+
+    List<SchedulingEntity> schedulings = schedulingRepository.findByContactName(professionalId, name);
+
+    return schedulings.stream()
+          .map(this::mapToDTOWithContact)
+          .collect(Collectors.toList());
+  }
+
   private SchedulingDTO mapToDTOWithContact(SchedulingEntity entity) {
     SchedulingDTO dto = new SchedulingDTO();
     dto.setId(entity.getId());

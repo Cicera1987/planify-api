@@ -69,4 +69,17 @@ public interface SchedulingApi {
   })
   @DeleteMapping("/{idScheduling}")
   ResponseEntity<Void> deleteScheduling(@NotNull @PathVariable("idScheduling") Long idScheduling);
+
+  @Operation(
+        summary = "Buscar agendamentos por nome do contato",
+        description = "Retorna a lista de agendamentos do profissional logado filtrados pelo nome do contato (case insensitive)."
+  )
+  @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso."),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
+  })
+  @GetMapping("/search")
+  ResponseEntity<List<SchedulingDTO>> searchSchedulingsByContactName(
+        @RequestParam String name
+  );
 }

@@ -5,6 +5,7 @@ import com.tcc.planify_api.entity.SchedulingEntity;
 import com.tcc.planify_api.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -41,4 +42,12 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
                                                LocalDate startDate,
                                                LocalDate endDate,
                                                List<String> statuses);
+
+  @Query("SELECT s FROM SchedulingEntity s " +
+        "WHERE s.professional.id = :professionalId " +
+        "AND LOWER(s.contact.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+  List<SchedulingEntity> findByContactName(
+        @Param("professionalId") Long professionalId,
+        @Param("name") String name
+  );
 }
