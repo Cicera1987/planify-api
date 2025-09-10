@@ -1,5 +1,6 @@
 package com.tcc.planify_api.service;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.user.UserCreateDTO;
 import com.tcc.planify_api.dto.user.UserDTO;
@@ -22,6 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -33,6 +37,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final PositionRepository positionRepository;
   private final ApiVersionProvider versionProvider;
+  private final CloudinaryService cloudinaryService;
 
   public Optional<UserEntity> findByLogin(String username) {
     return userRepository.findByUsername(username);
@@ -53,12 +58,19 @@ public class UserService {
           .password(passwordEncoder.encode(userCreateDTO.getPassword()))
           .speciality(userCreateDTO.getSpeciality())
           .position(position)
-          .imageUrl(userCreateDTO.getImageUrl())
           .active(Boolean.TRUE.equals(userCreateDTO.getActive()))
           .build();
 
+    if (userCreateDTO.getFile() != null) {
+      String imageUrl = cloudinaryService.uploadFile(userCreateDTO.getFile());
+      userEntity.setImageUrl(imageUrl);
+    } else {
+      userEntity.setImageUrl(userCreateDTO.getImageUrl());
+    }
+
     return mapToUserDTO(userRepository.save(userEntity));
   }
+
 
   @Transactional(readOnly = true)
   public PageDTO<UserDTO> getAllUsers(int page, int size) {

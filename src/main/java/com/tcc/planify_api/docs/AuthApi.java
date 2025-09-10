@@ -44,5 +44,4 @@ public interface AuthApi {
   @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso.")
   @PostMapping("/logout")
   ResponseEntity<Void> logout(HttpServletResponse response);
-
 }

@@ -4,6 +4,7 @@ import com.tcc.planify_api.enums.PositionEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -30,6 +31,8 @@ public class UserCreateDTO {
 
   @Builder.Default
   private PositionEnum position = PositionEnum.PROFESSIONAL;
+
+  private MultipartFile file;
 
   private String imageUrl;
 

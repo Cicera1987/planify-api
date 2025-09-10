@@ -9,6 +9,7 @@ import com.tcc.planify_api.dto.user.UserUpdateDTO;
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.security.TokenService;
 import com.tcc.planify_api.service.AuthenticationService;
+import com.tcc.planify_api.service.CloudinaryService;
 import com.tcc.planify_api.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +17,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -30,6 +31,7 @@ public class AuthController implements AuthApi {
   private final TokenService tokenService;
   private final UserService userService;
   private final AuthenticationService authenticationService;
+  private  final CloudinaryService cloudinaryService;
 
   @Override
   public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
@@ -64,5 +66,14 @@ public class AuthController implements AuthApi {
     response.addCookie(cookie);
 
     return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/upload")
+  public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    if (file.isEmpty()) {
+      return ResponseEntity.badRequest().body("Arquivo vazio");
+    }
+    String imageUrl = cloudinaryService.uploadFile(file);
+    return ResponseEntity.ok(imageUrl);
   }
 }
