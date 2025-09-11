@@ -21,6 +21,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
 
+    String path = request.getRequestURI();
+    if (path.equals("/auth/upload") || path.startsWith("/auth/") && request.getMethod().equals("POST")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
     String tokenFromHeader = getTokenFromHeader(request);
 
     if (tokenFromHeader != null && !tokenFromHeader.isBlank()) {
