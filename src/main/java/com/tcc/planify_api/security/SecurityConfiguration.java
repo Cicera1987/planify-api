@@ -34,6 +34,7 @@ public class SecurityConfiguration {
           .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/upload/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/health").permitAll()
                 .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**")
                 .hasAnyRole("ADMIN", "PROFESSIONAL")
@@ -70,7 +71,7 @@ public class SecurityConfiguration {
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.ignoring().requestMatchers(
-          "/auth/upload",
+          "/upload",
           "/v3/api-docs",
           "/v3/api-docs/**",
           "/swagger-resources/**",

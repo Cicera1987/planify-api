@@ -18,9 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -31,14 +28,12 @@ public class AuthController implements AuthApi {
   private final TokenService tokenService;
   private final UserService userService;
   private final AuthenticationService authenticationService;
-  private  final CloudinaryService cloudinaryService;
 
   @Override
   public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
     UserDTO createdUser = userService.createUser(userCreateDTO);
     return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
   }
-
   @Override
   public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDTO loginDTO) {
     UserDTO user = userService.login(loginDTO.getEmail(), loginDTO.getPassword());
@@ -48,8 +43,6 @@ public class AuthController implements AuthApi {
 
     return ResponseEntity.ok(Map.of("token", token));
   }
-
-
   @Override
   public ResponseEntity<UserDTO> updateUser(Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
     UserDTO updatedUser = userService.updateUser(id, userUpdateDTO);
@@ -66,14 +59,5 @@ public class AuthController implements AuthApi {
     response.addCookie(cookie);
 
     return ResponseEntity.noContent().build();
-  }
-
-  @Override
-  public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
-    if (file.isEmpty()) {
-      return ResponseEntity.badRequest().body("Arquivo vazio");
-    }
-    String imageUrl = cloudinaryService.uploadFile(file);
-    return ResponseEntity.ok(imageUrl);
   }
 }

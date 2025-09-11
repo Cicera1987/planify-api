@@ -22,7 +22,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                                   FilterChain filterChain) throws ServletException, IOException {
 
     String path = request.getRequestURI();
-    if (path.equals("/auth/upload")) {
+    if (path.equals("/upload")) {
       filterChain.doFilter(request, response);
       return;
     }
