@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UploadController  implements UploadImagApi {
   private  final CloudinaryService  cloudinaryService;
-
   @Override
   public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
     if (file.isEmpty()) {
