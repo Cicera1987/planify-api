@@ -68,7 +68,7 @@ public class AuthController implements AuthApi {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/upload")
+  @Override
   public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
     if (file.isEmpty()) {
       return ResponseEntity.badRequest().body("Arquivo vazio");

@@ -12,8 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+
 
 @Tag(name = "Auth")
 public interface AuthApi {
@@ -44,4 +46,9 @@ public interface AuthApi {
   @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso.")
   @PostMapping("/logout")
   ResponseEntity<Void> logout(HttpServletResponse response);
+
+  @Operation(summary = "Upload de imagem", description = "Faz upload de uma imagem e retorna a URL.")
+  @ApiResponse(responseCode = "200", description = "Imagem enviada com sucesso.")
+  @PostMapping("/upload")
+  ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file);
 }
