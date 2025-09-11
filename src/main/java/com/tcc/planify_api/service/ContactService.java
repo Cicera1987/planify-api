@@ -1,5 +1,6 @@
 package com.tcc.planify_api.service;
 
+import com.tcc.planify_api.dto.Image.ImageSourceRequest;
 import com.tcc.planify_api.dto.contact.ContactCreateDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
 import com.tcc.planify_api.dto.pagination.PageDTO;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class ContactService {
@@ -29,6 +29,7 @@ public class ContactService {
   private final UserRepository userRepository;
   private final PackageRepository packageRepository;
   private final ApiVersionProvider versionProvider;
+  private final ImageProviderService imageProviderService;
 
   public PageDTO<ContactDTO> getContacts(Pageable pageable) {
     Page<ContactEntity> page = contactRepository.findAll(pageable);
@@ -52,20 +53,29 @@ public class ContactService {
     ContactEntity entity = ContactEntity.builder()
           .name(dto.getName())
           .phone(dto.getPhone())
-          .email(dto.getEmail() != null ? dto.getEmail() : null)
-          .observation(dto.getObservation() != null ? dto.getObservation() : null)
+          .email(dto.getEmail())
+          .observation(dto.getObservation())
           .professional(professional)
-          .imageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : null)
           .createdAt(LocalDateTime.now())
           .build();
+
+    String imageUrl = imageProviderService.getImageUrl(
+          ImageSourceRequest.builder()
+                .file(dto.getFile())
+                .externalUrl(dto.getImageUrl())
+                .build()
+    );
+    entity.setImageUrl(imageUrl);
 
     if (dto.getPackageIds() != null && !dto.getPackageIds().isEmpty()) {
       List<PackageEntity> packages = packageRepository.findAllById(dto.getPackageIds());
       entity.setPackages(packages);
     }
+
     entity = contactRepository.save(entity);
     return toDTO(entity);
   }
+
 
   public ContactDTO updateContact(Long id, ContactCreateDTO dto) throws Exception {
     ContactEntity entity = contactRepository.findById(id)
@@ -74,8 +84,15 @@ public class ContactService {
     entity.setName(dto.getName());
     entity.setPhone(dto.getPhone());
     entity.setEmail(dto.getEmail());
-    entity.setImageUrl(dto.getImageUrl());
     entity.setObservation(dto.getObservation());
+
+    String imageUrl = imageProviderService.getImageUrl(
+          ImageSourceRequest.builder()
+                .file(dto.getFile())
+                .externalUrl(dto.getImageUrl())
+                .build()
+    );
+    entity.setImageUrl(imageUrl);
 
     entity = contactRepository.save(entity);
     return toDTO(entity);

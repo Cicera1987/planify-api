@@ -1,6 +1,7 @@
 package com.tcc.planify_api.dto.user;
 import com.tcc.planify_api.enums.PositionEnum;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ public class UserDTO {
   private String speciality;
   private PositionEnum position;
   private String imageUrl;
+  private MultipartFile file;
   private boolean active;
 }
 

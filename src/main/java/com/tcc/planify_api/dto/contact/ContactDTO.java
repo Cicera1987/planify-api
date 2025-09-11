@@ -1,6 +1,7 @@
 package com.tcc.planify_api.dto.contact;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ public class ContactDTO extends ContactCreateDTO {
   private String email;
   private String observation;
   private String imageUrl;
+  private MultipartFile file;
   private Long professionalId;
   private List<Long> packageIds;
   private LocalDateTime createdAt;

@@ -3,6 +3,7 @@ package com.tcc.planify_api.dto.contact;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class ContactCreateDTO {
   private String email;
 
   private String imageUrl;
+  private MultipartFile file;
 
   private List<Long> packageIds;
 
