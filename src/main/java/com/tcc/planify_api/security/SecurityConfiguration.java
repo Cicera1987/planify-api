@@ -8,42 +8,63 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+
   private final TokenService tokenService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
           .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-          .cors(cors -> {})
-          .csrf(AbstractHttpConfigurer::disable)
+          .cors(withDefaults())
+          .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/health").permitAll()
-                .requestMatchers("/users/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/clients/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/contacts/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/services/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/packages/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/calendar/**").hasAnyRole("ADMIN", "PROFESSIONAL")
-                .requestMatchers("/scheduling/**").hasAnyRole("ADMIN", "PROFESSIONAL")
+                .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**")
+                .hasAnyRole("ADMIN", "PROFESSIONAL")
                 .anyRequest().hasRole("ADMIN")
           );
 
     http.addFilterBefore(
           new TokenAuthenticationFilter(tokenService),
-          UsernamePasswordAuthenticationFilter.class
+          org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
     );
 
     return http.build();
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(
+          List.of(
+                "http://localhost:3000"
+          )
+    );
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("Authorization"));
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
   }
 
   @Bean
