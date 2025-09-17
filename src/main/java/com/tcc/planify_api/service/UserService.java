@@ -59,13 +59,15 @@ public class UserService {
           .active(Boolean.TRUE.equals(userCreateDTO.getActive()))
           .build();
 
-    String imageUrl = imageProviderService.getImageUrl(
-          ImageSourceRequest.builder()
-                .file(userCreateDTO.getFile())
-                .externalUrl(userCreateDTO.getImageUrl())
-                .build()
-    );
-    userEntity.setImageUrl(imageUrl);
+    if (userCreateDTO.getFile() != null || userCreateDTO.getImageUrl() != null) {
+      String imageUrl = imageProviderService.getImageUrl(
+            ImageSourceRequest.builder()
+                  .file(userCreateDTO.getFile())
+                  .externalUrl(userCreateDTO.getImageUrl())
+                  .build()
+      );
+      userEntity.setImageUrl(imageUrl);
+    }
 
     return mapToUserDTO(userRepository.save(userEntity));
   }
@@ -107,14 +109,15 @@ public class UserService {
     if (updateDTO.getEmail() != null) user.setEmail(updateDTO.getEmail());
     if (updateDTO.getPhone() != null) user.setPhone(updateDTO.getPhone());
     if (updateDTO.getSpeciality() != null) user.setSpeciality(updateDTO.getSpeciality());
-
-    String imageUrl = imageProviderService.getImageUrl(
-          ImageSourceRequest.builder()
-                .file(updateDTO.getFile())
-                .externalUrl(updateDTO.getImageUrl())
-                .build()
-    );
-    user.setImageUrl(imageUrl);
+    if (updateDTO.getFile() != null || updateDTO.getImageUrl() != null) {
+      String imageUrl = imageProviderService.getImageUrl(
+            ImageSourceRequest.builder()
+                  .file(updateDTO.getFile())
+                  .externalUrl(updateDTO.getImageUrl())
+                  .build()
+      );
+      user.setImageUrl(imageUrl);
+    }
 
     if (isAdmin) {
       if (updateDTO.getPosition() != null) {
