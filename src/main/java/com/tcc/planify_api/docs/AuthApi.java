@@ -40,7 +40,7 @@ public interface AuthApi {
         @ApiResponse(responseCode = "400", description = "Requisição inválida.")
   })
   @PatchMapping("/{id}")
-  ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestParam UserUpdateDTO userUpdateDTO);
+  ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO);
 
   @Operation(summary = "Logout", description = "Encerra a sessão do usuário atual.")
   @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso.")
