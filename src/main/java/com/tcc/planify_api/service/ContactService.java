@@ -55,6 +55,7 @@ public class ContactService {
           .phone(dto.getPhone())
           .email(dto.getEmail())
           .observation(dto.getObservation())
+          .gender(dto.getGender())
           .professional(professional)
           .createdAt(LocalDateTime.now())
           .build();
@@ -84,6 +85,7 @@ public class ContactService {
     entity.setName(dto.getName());
     entity.setPhone(dto.getPhone());
     entity.setEmail(dto.getEmail());
+    entity.setGender(dto.getGender());
     entity.setObservation(dto.getObservation());
 
     String imageUrl = imageProviderService.getImageUrl(
@@ -109,6 +111,7 @@ public class ContactService {
     dto.setPhone(entity.getPhone());
     dto.setEmail(entity.getEmail());
     dto.setImageUrl(entity.getImageUrl());
+    dto.setGender(entity.getGender());
     dto.setObservation(entity.getObservation());
     dto.setProfessionalId(entity.getProfessional().getId());
     dto.setCreatedAt(entity.getCreatedAt());

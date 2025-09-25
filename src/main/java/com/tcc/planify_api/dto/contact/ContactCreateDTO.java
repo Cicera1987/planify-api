@@ -1,5 +1,6 @@
 package com.tcc.planify_api.dto.contact;
 
+import com.tcc.planify_api.enums.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -21,6 +22,9 @@ public class ContactCreateDTO {
   private String email;
 
   private String imageUrl;
+
+  private Gender gender;
+
   private MultipartFile file;
 
   private List<Long> packageIds;

@@ -1,5 +1,6 @@
 package com.tcc.planify_api.entity;
 
+import com.tcc.planify_api.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -44,6 +45,9 @@ public class ContactEntity {
 
   @Column(name = "image_url")
   private String imageUrl;
+
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
 
   @ManyToMany
   @JoinTable(
