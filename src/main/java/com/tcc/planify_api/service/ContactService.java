@@ -78,6 +78,7 @@ public class ContactService {
   }
 
 
+  @Transactional
   public ContactDTO updateContact(Long id, ContactCreateDTO dto) throws Exception {
     ContactEntity entity = contactRepository.findById(id)
           .orElseThrow(() -> new Exception("Contato não encontrado"));
@@ -96,9 +97,17 @@ public class ContactService {
     );
     entity.setImageUrl(imageUrl);
 
+    if (dto.getPackageIds() != null && !dto.getPackageIds().isEmpty()) {
+      List<PackageEntity> packages = packageRepository.findAllById(dto.getPackageIds());
+      entity.setPackages(packages);
+    } else {
+      entity.getPackages().clear();
+    }
+
     entity = contactRepository.save(entity);
     return toDTO(entity);
   }
+
 
   public void deleteContact(Long id) {
     contactRepository.deleteById(id);
