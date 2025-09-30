@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,8 +45,8 @@ public interface ContactApi {
         @ApiResponse(responseCode = "400", description = "Requisição inválida. Os dados fornecidos não são válidos."),
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
-  @PostMapping
-  ResponseEntity<ContactDTO> createContact(@Valid @RequestBody ContactCreateDTO contactCreateDTO);
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  ResponseEntity<ContactDTO> createContact(@Valid @ModelAttribute ContactCreateDTO contactCreateDTO);
 
   @Operation(summary = "Atualizar um contato existente", description = "Atualiza os dados de um contato existente com o ID fornecido.")
   @ApiResponses(value = {
