@@ -55,10 +55,10 @@ public interface ContactApi {
         @ApiResponse(responseCode = "404", description = "Contato não encontrado."),
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
-  @PutMapping("/{idContato}")
+  @PutMapping(value = "/{idContato}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   ResponseEntity<ContactDTO> updateContact(
         @NotNull @PathVariable("idContato") Long idContato,
-        @Valid @RequestBody ContactCreateDTO contactCreateDTO) throws Exception;
+        @Valid @ModelAttribute ContactCreateDTO contactCreateDTO) throws Exception;
 
   @Operation(summary = "Deletar um contato", description = "Deleta o contato com o ID fornecido.")
   @ApiResponses(value = {
