@@ -44,6 +44,13 @@ public class ContactService {
   }
 
   @Transactional
+  public ContactDTO getContactById(Long id) throws Exception {
+    ContactEntity contact = contactRepository.findById(id)
+          .orElseThrow(() -> new Exception("Contato não encontrado "));
+    return toDTO(contact);
+  }
+
+  @Transactional
   public ContactDTO createContact(ContactCreateDTO dto) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 

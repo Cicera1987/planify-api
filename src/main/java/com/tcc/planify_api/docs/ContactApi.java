@@ -27,6 +27,14 @@ public interface ContactApi {
         @RequestParam(defaultValue = "10") int size
   );
 
+  @Operation(summary = "Buscar contato pot Id", description = "Retorna um contato pelo Id")
+  @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Contato localizado."),
+        @ApiResponse(responseCode = "404", description = "Contato não encontrado.")
+  })
+  @GetMapping("/{id}")
+  ResponseEntity<ContactDTO> getContactById(@PathVariable Long id) throws Exception;
+
   @Operation(summary = "Buscar contatos por nome", description = "Retorna uma lista paginada de contatos filtrados pelo nome do contato do profissional logado.")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso."),

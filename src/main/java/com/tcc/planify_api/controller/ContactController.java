@@ -33,6 +33,11 @@ public class ContactController implements ContactApi {
   }
 
   @Override
+  public ResponseEntity<ContactDTO> getContactById(@PathVariable Long id) throws Exception {
+    return ResponseEntity.ok(contactService.getContactById(id));
+  }
+
+    @Override
   public ResponseEntity<PageDTO<ContactDTO>> searchContacts(
         @RequestParam String name,
         @RequestParam(defaultValue = "0") int page,
