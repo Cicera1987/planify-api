@@ -51,7 +51,7 @@ public class CalendarService {
       }
 
       return dayRepository.save(day);
-    }).collect(Collectors.toList());
+    }).toList();
 
     return savedDays.stream()
           .map(this::mapToDTO)
@@ -116,13 +116,12 @@ public class CalendarService {
 
   @Transactional
   public void deleteTime(Long idDay, Long idTime) throws Exception {
-    CalendarDayEntity day = dayRepository.findById(idDay)
-          .orElseThrow(() -> new Exception("Dia não encontrado"));
-
-    CalendarTimeEntity time = day.getTimes().stream()
-          .filter(t -> t.getId().equals(idTime))
-          .findFirst()
+    CalendarTimeEntity time = timeRepository.findById(idTime)
           .orElseThrow(() -> new Exception("Horário não encontrado"));
+
+    if (!time.getCalendarDay().getId().equals(idDay)) {
+      throw new Exception("Horário não pertence a esse dia");
+    }
 
     timeRepository.delete(time);
   }
