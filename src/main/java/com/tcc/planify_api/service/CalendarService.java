@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,9 +132,13 @@ public class CalendarService {
     dto.setId(day.getId());
     dto.setUserId(day.getUserId());
     dto.setLocalDate(day.getLocalDate());
-    dto.setTimes(day.getTimes().stream()
+
+    List<CalendarTimeDTO> sortedTimes = day.getTimes().stream()
+          .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
           .map(this::mapTimeToDTO)
-          .collect(Collectors.toList()));
+          .collect(Collectors.toList());
+
+    dto.setTimes(sortedTimes);
     return dto;
   }
 
@@ -143,4 +148,5 @@ public class CalendarService {
     dto.setTime(time.getTime());
     return dto;
   }
+
 }
