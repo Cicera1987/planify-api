@@ -12,6 +12,8 @@ import com.tcc.planify_api.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,24 +28,34 @@ public class CalendarService {
   public List<CalendarDayDTO> createDay(List<CalendarDayCreateDTO> dayDTOs) {
     Long userId = AuthUtil.getAuthenticatedUserId();
 
-    List<CalendarDayEntity> days = dayDTOs.stream().map(dto -> {
-      CalendarDayEntity day = new CalendarDayEntity();
-      day.setUserId(userId);
-      day.setLocalDate(dto.getLocalDate());
+    List<CalendarDayEntity> savedDays = dayDTOs.stream().map(dto -> {
 
-      List<CalendarTimeEntity> times = dto.getTimes().stream().map(timeDTO -> {
-        CalendarTimeEntity time = new CalendarTimeEntity();
-        time.setTime(timeDTO.getTime());
-        time.setCalendarDay(day);
-        return time;
-      }).collect(Collectors.toList());
+      CalendarDayEntity day = dayRepository.findByUserIdAndLocalDate(userId, dto.getLocalDate())
+            .orElseGet(() -> {
+              CalendarDayEntity newDay = new CalendarDayEntity();
+              newDay.setUserId(userId);
+              newDay.setLocalDate(dto.getLocalDate());
+              newDay.setTimes(new ArrayList<>());
+              return newDay;
+            });
 
-      day.setTimes(times);
-      return day;
+      for (CalendarTimeCreateDTO timeDTO : dto.getTimes()) {
+        boolean exists = day.getTimes().stream()
+              .anyMatch(t -> t.getTime().equals(timeDTO.getTime()));
+        if (!exists) {
+          CalendarTimeEntity time = new CalendarTimeEntity();
+          time.setTime(timeDTO.getTime());
+          time.setCalendarDay(day);
+          day.getTimes().add(time);
+        }
+      }
+
+      return dayRepository.save(day);
     }).collect(Collectors.toList());
 
-    List<CalendarDayEntity> savedDays = dayRepository.saveAll(days);
-    return savedDays.stream().map(this::mapToDTO).collect(Collectors.toList());
+    return savedDays.stream()
+          .map(this::mapToDTO)
+          .collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
