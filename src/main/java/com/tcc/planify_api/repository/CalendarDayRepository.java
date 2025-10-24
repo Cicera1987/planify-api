@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface CalendarDayRepository extends JpaRepository<CalendarDayEntity, Long> {
   Optional<CalendarDayEntity> findByUserIdAndLocalDate(Long userId, LocalDate localDate);
-  List<CalendarDayEntity> findByUserId(Long useId);
+  List<CalendarDayEntity> findByUserId(Long userId);
 }

@@ -87,7 +87,6 @@ public class CalendarService {
     }).toList();
   }
 
-
   @Transactional(readOnly = true)
   public List<CalendarDayDTO> getCalendarDaysByUser(Long userId) {
     return dayRepository.findAll().stream()

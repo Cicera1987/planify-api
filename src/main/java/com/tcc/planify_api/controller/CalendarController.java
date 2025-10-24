@@ -6,6 +6,7 @@ import com.tcc.planify_api.dto.calendar.CalendarDayDTO;
 import com.tcc.planify_api.dto.calendar.CalendarTimeCreateDTO;
 import com.tcc.planify_api.dto.calendar.CalendarTimeDTO;
 import com.tcc.planify_api.service.CalendarService;
+import com.tcc.planify_api.util.AuthUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,8 @@ public class CalendarController implements CalendarApi {
 
   @Override
   public ResponseEntity<List<CalendarDayDTO>> listDays() {
-    return ResponseEntity.ok(calendarService.listDays());
+    Long userId = AuthUtil.getAuthenticatedUserId();
+    return ResponseEntity.ok(calendarService.listDays(userId));
   }
 
   @Override
