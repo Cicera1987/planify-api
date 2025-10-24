@@ -22,7 +22,7 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
     JOIN FETCH s.calendarDay d
     JOIN FETCH s.calendarTime t
     LEFT JOIN FETCH s.services srv
-    LEFT JOIN FETCH s.package p
+    LEFT JOIN FETCH s.packageEntity p
     WHERE s.professional.id = :professionalId
       AND s.status IN :activeStatuses
     ORDER BY d.localDate ASC, t.time ASC
@@ -38,7 +38,7 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
     JOIN FETCH s.calendarDay d
     JOIN FETCH s.calendarTime t
     LEFT JOIN FETCH s.services srv
-    LEFT JOIN FETCH s.package p
+    LEFT JOIN FETCH s.packageEntity p
     WHERE s.professional.id = :professionalId
       AND (:startDate IS NULL OR d.localDate >= :startDate)
       AND (:endDate IS NULL OR d.localDate <= :endDate)
