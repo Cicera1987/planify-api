@@ -3,8 +3,10 @@ package com.tcc.planify_api.service;
 import com.tcc.planify_api.dto.calendar.CalendarDayDTO;
 import com.tcc.planify_api.dto.calendar.CalendarTimeDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
+import com.tcc.planify_api.dto.packageServices.PackageDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingCreateDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
+import com.tcc.planify_api.dto.typeOfService.TypeOfServiceDTO;
 import com.tcc.planify_api.entity.*;
 import com.tcc.planify_api.enums.StatusAgendamento;
 import com.tcc.planify_api.repository.*;
@@ -213,8 +215,13 @@ public class SchedulingService {
     dto.setContact(contactDTO);
 
     // Pacote
-    dto.setPackageId(entity.getPackageEntity() != null ? entity.getPackageEntity().getId() : null);
-
+    PackageEntity pkg = entity.getPackageEntity();
+    if (pkg != null) {
+      PackageDTO pkgDTO = new PackageDTO();
+      pkgDTO.setId(pkg.getId());
+      pkgDTO.setName(pkg.getName());
+      dto.setPackageInfo(pkgDTO);
+    }
     // Dia
     CalendarDayEntity day = entity.getCalendarDay();
     CalendarDayDTO dayDTO = new CalendarDayDTO();
@@ -233,13 +240,18 @@ public class SchedulingService {
     dto.setStatus(entity.getStatus());
     dto.setCreatedAt(entity.getCreatedAt());
 
-    if (entity.getServices() != null) {
-      List<Long> serviceIds = entity.getServices().stream()
-            .map(TypeOfServiceEntity::getId)
-            .toList();
-      dto.setServiceId(serviceIds);
+    // Serviços
+    if (entity.getServices() != null && !entity.getServices().isEmpty()) {
+      List<TypeOfServiceDTO> serviceDTOs = entity.getServices().stream().map(service -> {
+        TypeOfServiceDTO s = new TypeOfServiceDTO();
+        s.setId(service.getId());
+        s.setName(service.getName());
+        s.setPrice(service.getPrice());
+        s.setDuration(service.getDuration());
+        return s;
+      }).toList();
+      dto.setServices(serviceDTOs);
     }
-
     return dto;
   }
 }
