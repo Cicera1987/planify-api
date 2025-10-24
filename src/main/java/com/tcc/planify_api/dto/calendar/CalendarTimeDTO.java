@@ -9,4 +9,5 @@ import java.time.LocalTime;
 public class CalendarTimeDTO {
   private Long id;
   private LocalTime time;
+  private Boolean available;
 }

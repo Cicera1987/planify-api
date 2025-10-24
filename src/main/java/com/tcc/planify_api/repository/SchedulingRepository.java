@@ -17,31 +17,40 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
   boolean existsByCalendarTimeAndProfessional(CalendarTimeEntity calendarTime, UserEntity professional);
 
   @Query("""
-        SELECT s FROM SchedulingEntity s
-        JOIN FETCH s.contact c
-        JOIN FETCH s.calendarDay d
-        JOIN FETCH s.calendarTime t
-        WHERE s.professional.id = :professionalId
-          AND s.status IN :activeStatuses
-        ORDER BY d.localDate ASC, t.time ASC
-    """)
-  List<SchedulingEntity> findActiveSchedulings(Long professionalId, List<String> activeStatuses);
+    SELECT DISTINCT s FROM SchedulingEntity s
+    JOIN FETCH s.contact c
+    JOIN FETCH s.calendarDay d
+    JOIN FETCH s.calendarTime t
+    LEFT JOIN FETCH s.services srv
+    LEFT JOIN FETCH s.package p
+    WHERE s.professional.id = :professionalId
+      AND s.status IN :activeStatuses
+    ORDER BY d.localDate ASC, t.time ASC
+""")
+  List<SchedulingEntity> findActiveSchedulings(
+        @Param("professionalId") Long professionalId,
+        @Param("activeStatuses") List<String> activeStatuses
+  );
 
   @Query("""
-        SELECT s FROM SchedulingEntity s
-        JOIN FETCH s.contact c
-        JOIN FETCH s.calendarDay d
-        JOIN FETCH s.calendarTime t
-        WHERE s.professional.id = :professionalId
-          AND (:startDate IS NULL OR d.localDate >= :startDate)
-          AND (:endDate IS NULL OR d.localDate <= :endDate)
-          AND (:statuses IS NULL OR s.status IN :statuses)
-        ORDER BY d.localDate ASC, t.time ASC
-    """)
-  List<SchedulingEntity> findSchedulingHistory(Long professionalId,
-                                               LocalDate startDate,
-                                               LocalDate endDate,
-                                               List<String> statuses);
+    SELECT DISTINCT s FROM SchedulingEntity s
+    JOIN FETCH s.contact c
+    JOIN FETCH s.calendarDay d
+    JOIN FETCH s.calendarTime t
+    LEFT JOIN FETCH s.services srv
+    LEFT JOIN FETCH s.package p
+    WHERE s.professional.id = :professionalId
+      AND (:startDate IS NULL OR d.localDate >= :startDate)
+      AND (:endDate IS NULL OR d.localDate <= :endDate)
+      AND (:statuses IS NULL OR s.status IN :statuses)
+    ORDER BY d.localDate ASC, t.time ASC
+""")
+  List<SchedulingEntity> findSchedulingHistory(
+        @Param("professionalId") Long professionalId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuses") List<String> statuses
+  );
 
   @Query("SELECT s FROM SchedulingEntity s " +
         "WHERE s.professional.id = :professionalId " +
@@ -50,4 +59,6 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
         @Param("professionalId") Long professionalId,
         @Param("name") String name
   );
+
+  boolean existsByCalendarTimeId(Long timeId);
 }
