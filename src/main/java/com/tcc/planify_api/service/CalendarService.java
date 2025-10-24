@@ -60,31 +60,36 @@ public class CalendarService {
           .map(this::mapToDTO)
           .collect(Collectors.toList());
   }
+
   @Transactional(readOnly = true)
   public List<CalendarDayDTO> listDays(Long userId) {
     List<CalendarDayEntity> days = dayRepository.findByUserId(userId);
 
-    return days.stream().map(day -> {
-      CalendarDayDTO dto = new CalendarDayDTO();
-      dto.setId(day.getId());
-      dto.setUserId(day.getUserId());
-      dto.setLocalDate(day.getLocalDate());
+    return days.stream()
+          .map(day -> {
+            // Mapeia cada dia para o DTO
+            CalendarDayDTO dto = new CalendarDayDTO();
+            dto.setId(day.getId());
+            dto.setUserId(day.getUserId());
+            dto.setLocalDate(day.getLocalDate());
 
-      List<CalendarTimeDTO> times = day.getTimes().stream()
-            .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
-            .map(time -> {
-              boolean isOccupied = schedulingRepository.existsByCalendarTimeId(time.getId());
-              CalendarTimeDTO t = new CalendarTimeDTO();
-              t.setId(time.getId());
-              t.setTime(time.getTime());
-              t.setAvailable(!isOccupied);
-              return t;
-            })
-            .collect(Collectors.toList());
+            List<CalendarTimeDTO> times = day.getTimes().stream()
+                  .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
+                  .map(time -> {
+                    boolean isOccupied = schedulingRepository.existsByCalendarTimeId(time.getId());
 
-      dto.setTimes(times);
-      return dto;
-    }).toList();
+                    CalendarTimeDTO timeDTO = new CalendarTimeDTO();
+                    timeDTO.setId(time.getId());
+                    timeDTO.setTime(time.getTime());
+                    timeDTO.setAvailable(!isOccupied);
+                    return timeDTO;
+                  })
+                  .collect(Collectors.toList());
+
+            dto.setTimes(times);
+            return dto;
+          })
+          .toList();
   }
 
   @Transactional(readOnly = true)
