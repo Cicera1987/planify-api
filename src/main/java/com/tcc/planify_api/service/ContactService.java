@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -133,9 +134,9 @@ public class ContactService {
     dto.setCreatedAt(entity.getCreatedAt());
 
     dto.setPackageIds(
-          entity.getPackages().stream()
-                .map(PackageEntity::getId)
-                .toList()
+          entity.getPackages() != null
+                ? entity.getPackages().stream().map(PackageEntity::getId).toList()
+                : Collections.emptyList()
     );
     return dto;
   }
