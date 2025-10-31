@@ -163,4 +163,25 @@ public class UserService {
           .active(userEntity.isActive())
           .build();
   }
+  @Transactional
+  public UserEntity findOrCreateByEmail(String email, String name, String picture) {
+    return userRepository.findByEmail(email)
+          .orElseGet(() -> {
+            PositionEntity defaultPosition = positionRepository.findByPosition(PositionEnum.PROFESSIONAL)
+                  .orElseThrow(() -> new IllegalArgumentException("Posição padrão não encontrada"));
+
+            UserEntity newUser = UserEntity.builder()
+                  .username(name)
+                  .email(email)
+                  .password(passwordEncoder.encode("oauth_default_password"))
+                  .speciality("Não informado")
+                  .phone("Não informado")
+                  .active(true)
+                  .position(defaultPosition)
+                  .imageUrl(picture)
+                  .build();
+
+            return userRepository.save(newUser);
+          });
+  }
 }

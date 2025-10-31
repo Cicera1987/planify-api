@@ -25,6 +25,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfiguration {
 
   private final TokenService tokenService;
+  private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,6 +40,9 @@ public class SecurityConfiguration {
                 .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**")
                 .hasAnyRole("ADMIN", "PROFESSIONAL")
                 .anyRequest().hasRole("ADMIN")
+          )
+          .oauth2Login(oauth2 -> oauth2
+                      .successHandler(customOAuth2SuccessHandler)
           );
 
     http.addFilterBefore(
