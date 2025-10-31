@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -24,13 +25,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
   @Value("${frontend.url}")
   private String frontendUrl;
 
-  @Value("{frontend.url.local}")
+  @Value("${frontend.url.local}")
   private String frontendUrlLocal;
 
-  @Value("${FRONTEND_URL_PROD:https://planify-web-prod.onrender.com}")
+  @Value("${frontend.url.prod}")
   private String frontendUrlProd;
 
-  public CustomOAuth2SuccessHandler(TokenService tokenService, UserService userService, Environment environment) {
+  public CustomOAuth2SuccessHandler(
+        @Lazy TokenService tokenService,
+        @Lazy UserService userService,
+        Environment environment) {
     this.tokenService = tokenService;
     this.userService = userService;
     this.environment = environment;
