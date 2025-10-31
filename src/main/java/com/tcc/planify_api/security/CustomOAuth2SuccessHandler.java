@@ -34,7 +34,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
   public CustomOAuth2SuccessHandler(
         @Lazy TokenService tokenService,
         @Lazy UserService userService,
-        Environment environment) {
+        @Lazy Environment environment) {
     this.tokenService = tokenService;
     this.userService = userService;
     this.environment = environment;
