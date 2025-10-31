@@ -45,7 +45,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     UserEntity user = userService.findOrCreateByEmail(email, name, picture);
     String jwt = tokenService.generateToken(user);
 
-    // Decide redirecionamento baseado no origin
     String origin = request.getHeader("Origin");
     String redirectUrl;
 
