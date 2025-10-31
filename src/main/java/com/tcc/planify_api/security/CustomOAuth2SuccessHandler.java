@@ -21,8 +21,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
   @Value("${frontend.url}")
   private String frontendUrl;
 
-  @Value("${frontend.url.dev:#{null}}")
-  private String frontendUrlDev;
+  @Value("{frontend.url.local}")
+  private String frontendUrlLocal;
 
   public CustomOAuth2SuccessHandler(TokenService tokenService, UserService userService) {
     this.tokenService = tokenService;
