@@ -2,9 +2,11 @@ package com.tcc.planify_api.security;
 
 import com.tcc.planify_api.entity.UserEntity;
 import com.tcc.planify_api.service.UserService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -17,6 +19,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
   private final TokenService tokenService;
   private final UserService userService;
+  private final Environment environment;
 
   @Value("${frontend.url}")
   private String frontendUrl;
@@ -24,18 +27,23 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
   @Value("{frontend.url.local}")
   private String frontendUrlLocal;
 
-  public CustomOAuth2SuccessHandler(TokenService tokenService, UserService userService) {
+  @Value("${FRONTEND_URL_PROD:https://planify-web-prod.onrender.com}")
+  private String frontendUrlProd;
+
+  public CustomOAuth2SuccessHandler(TokenService tokenService, UserService userService, Environment environment) {
     this.tokenService = tokenService;
     this.userService = userService;
+    this.environment = environment;
   }
 
   @Override
   public void onAuthenticationSuccess(
         HttpServletRequest request,
         HttpServletResponse response,
-        Authentication authentication) throws IOException {
+        Authentication authentication
+  ) throws IOException, ServletException {
 
-    OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+    var oauthToken = (OAuth2AuthenticationToken) authentication;
     var attributes = oauthToken.getPrincipal().getAttributes();
 
     String email = (String) attributes.get("email");
@@ -45,15 +53,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     UserEntity user = userService.findOrCreateByEmail(email, name, picture);
     String jwt = tokenService.generateToken(user);
 
-    String origin = request.getHeader("Origin");
-    String redirectUrl;
+    String activeProfile = environment.getProperty("spring.profiles.active", "dev");
 
-    if (origin != null && origin.contains("planify-web-dev.onrender.com") && frontendUrlDev != null) {
-      redirectUrl = frontendUrlDev;
-    } else {
-      redirectUrl = frontendUrl;
-    }
+    String redirectBaseUrl = switch (activeProfile) {
+      case "prod" -> frontendUrlProd;
+      case "local" -> frontendUrlLocal;
+      default -> frontendUrl;
+    };
 
-    response.sendRedirect(redirectUrl + "/oauth/success?token=" + jwt);
+    response.sendRedirect(redirectBaseUrl + "/oauth/success?token=" + jwt);
   }
 }
