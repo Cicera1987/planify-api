@@ -14,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 
 @Tag(name = "Agendamento")
@@ -31,7 +28,8 @@ public interface SchedulingApi {
   })
   @GetMapping("/active")
   ResponseEntity<PageDTO<SchedulingDTO>> getActiveSchedulings(
-        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
   );
 
   @Operation(summary = "Listar histórico de agendamentos", description = "Retorna a lista de agendamentos concluídos ou com status específicos em um intervalo de datas para o profissional logado.")
@@ -44,7 +42,8 @@ public interface SchedulingApi {
         @RequestParam LocalDate startDate,
         @RequestParam LocalDate endDate,
         @RequestParam List<String> statuses,
-        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
   );
 
   @Operation(summary = "Criar um novo agendamento", description = "Cria um novo agendamento para o profissional logado. Pode ser avulso ou vinculado a um pacote.")
@@ -86,6 +85,7 @@ public interface SchedulingApi {
   @GetMapping("/search")
   ResponseEntity<PageDTO<SchedulingDTO>> searchSchedulingsByContactName(
         @RequestParam String name,
-        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int sizee
   );
 }
