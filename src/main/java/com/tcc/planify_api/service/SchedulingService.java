@@ -4,14 +4,19 @@ import com.tcc.planify_api.dto.calendar.CalendarDayDTO;
 import com.tcc.planify_api.dto.calendar.CalendarTimeDTO;
 import com.tcc.planify_api.dto.contact.ContactDTO;
 import com.tcc.planify_api.dto.packageServices.PackageDTO;
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingCreateDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
 import com.tcc.planify_api.dto.typeOfService.TypeOfServiceDTO;
 import com.tcc.planify_api.entity.*;
 import com.tcc.planify_api.enums.StatusAgendamento;
 import com.tcc.planify_api.repository.*;
+import com.tcc.planify_api.util.ApiVersionProvider;
 import com.tcc.planify_api.util.AuthUtil;
+import com.tcc.planify_api.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +36,10 @@ public class SchedulingService {
   private final TypeOfServiceRepository typeOfServiceRepository;
   private final CalendarTimeRepository calendarTimeRepository;
   private final CalendarDayRepository calendarDayRepository;
+  private final ApiVersionProvider versionProvider;
 
   @Transactional(readOnly = true)
-  public List<SchedulingDTO> getActiveSchedulingsForProfessional() {
+  public PageDTO<SchedulingDTO> getActiveSchedulingsForProfessional(Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     List<String> activeStatuses = Arrays.asList(
@@ -44,22 +49,18 @@ public class SchedulingService {
           StatusAgendamento.REMARCADO.getDescription()
     );
 
-    List<SchedulingEntity> schedulings = schedulingRepository.findActiveSchedulings(professionalId, activeStatuses);
+    Page<SchedulingEntity> page = schedulingRepository.findActiveSchedulings(professionalId, activeStatuses, pageable);
 
-    return schedulings.stream()
-          .map(this::mapToDTOWithContact)
-          .collect(Collectors.toList());
+    return PaginationUtil.toPageResponse(page, this::mapToDTOWithContact, versionProvider.getVersion());
   }
 
   @Transactional(readOnly = true)
-  public List<SchedulingDTO> getSchedulingHistory(LocalDate startDate, LocalDate endDate, List<String> statuses) {
+  public PageDTO<SchedulingDTO> getSchedulingHistory(LocalDate startDate, LocalDate endDate, List<String> statuses, Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
-    List<SchedulingEntity> schedulings = schedulingRepository.findSchedulingHistory(professionalId, startDate, endDate, statuses);
+    Page<SchedulingEntity> page = schedulingRepository.findSchedulingHistory(professionalId, startDate, endDate, statuses, pageable);
 
-    return schedulings.stream()
-          .map(this::mapToDTOWithContact)
-          .collect(Collectors.toList());
+    return PaginationUtil.toPageResponse(page, this::mapToDTOWithContact, versionProvider.getVersion());
   }
 
   @Transactional
@@ -189,14 +190,12 @@ public class SchedulingService {
   }
 
   @Transactional(readOnly = true)
-  public List<SchedulingDTO> searchSchedulingsByContactName(String name) {
+  public PageDTO<SchedulingDTO> searchSchedulingsByContactName(String name, Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
-    List<SchedulingEntity> schedulings = schedulingRepository.findByContactName(professionalId, name);
+    Page<SchedulingEntity> page = schedulingRepository.findByContactName(professionalId, name, pageable);
 
-    return schedulings.stream()
-          .map(this::mapToDTOWithContact)
-          .collect(Collectors.toList());
+    return PaginationUtil.toPageResponse(page, this::mapToDTOWithContact, versionProvider.getVersion());
   }
 
   private SchedulingDTO mapToDTOWithContact(SchedulingEntity entity) {

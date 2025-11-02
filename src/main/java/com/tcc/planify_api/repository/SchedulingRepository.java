@@ -3,6 +3,8 @@ package com.tcc.planify_api.repository;
 import com.tcc.planify_api.entity.CalendarTimeEntity;
 import com.tcc.planify_api.entity.SchedulingEntity;
 import com.tcc.planify_api.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,9 +29,10 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
       AND s.status IN :activeStatuses
     ORDER BY d.localDate ASC, t.time ASC
 """)
-  List<SchedulingEntity> findActiveSchedulings(
+  Page<SchedulingEntity> findActiveSchedulings(
         @Param("professionalId") Long professionalId,
-        @Param("activeStatuses") List<String> activeStatuses
+        @Param("activeStatuses") List<String> activeStatuses,
+        Pageable pageble
   );
 
   @Query("""
@@ -45,19 +48,21 @@ public interface SchedulingRepository extends JpaRepository<SchedulingEntity, Lo
       AND (:statuses IS NULL OR s.status IN :statuses)
     ORDER BY d.localDate ASC, t.time ASC
 """)
-  List<SchedulingEntity> findSchedulingHistory(
+  Page<SchedulingEntity> findSchedulingHistory(
         @Param("professionalId") Long professionalId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
-        @Param("statuses") List<String> statuses
+        @Param("statuses") List<String> statuses,
+        Pageable pageble
   );
 
   @Query("SELECT s FROM SchedulingEntity s " +
         "WHERE s.professional.id = :professionalId " +
         "AND LOWER(s.contact.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-  List<SchedulingEntity> findByContactName(
+  Page<SchedulingEntity> findByContactName(
         @Param("professionalId") Long professionalId,
-        @Param("name") String name
+        @Param("name") String name,
+        Pageable pageble
   );
 
   boolean existsByCalendarTimeId(Long timeId);
