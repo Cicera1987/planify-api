@@ -1,5 +1,6 @@
 package com.tcc.planify_api.docs;
 
+import com.tcc.planify_api.dto.pagination.PageDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingCreateDTO;
 import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
 import com.tcc.planify_api.enums.StatusAgendamento;
@@ -11,12 +12,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
+
 @Tag(name = "Agendamento")
 @RequestMapping("/scheduling")
+@Validated
 public interface SchedulingApi {
 
   @Operation(summary = "Listar agendamentos ativos", description = "Retorna a lista de agendamentos ativos para o profissional logado, ordenados por dia e horário.")
@@ -25,7 +30,9 @@ public interface SchedulingApi {
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
   @GetMapping("/active")
-  ResponseEntity<List<SchedulingDTO>> getActiveSchedulings();
+  ResponseEntity<PageDTO<SchedulingDTO>> getActiveSchedulings(
+        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
+  );
 
   @Operation(summary = "Listar histórico de agendamentos", description = "Retorna a lista de agendamentos concluídos ou com status específicos em um intervalo de datas para o profissional logado.")
   @ApiResponses(value = {
@@ -33,10 +40,11 @@ public interface SchedulingApi {
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
   @GetMapping("/history")
-  ResponseEntity<List<SchedulingDTO>> getSchedulingHistory(
+  ResponseEntity<PageDTO<SchedulingDTO>> getSchedulingHistory(
         @RequestParam LocalDate startDate,
         @RequestParam LocalDate endDate,
-        @RequestParam List<String> statuses
+        @RequestParam List<String> statuses,
+        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
   );
 
   @Operation(summary = "Criar um novo agendamento", description = "Cria um novo agendamento para o profissional logado. Pode ser avulso ou vinculado a um pacote.")
@@ -70,16 +78,14 @@ public interface SchedulingApi {
   @DeleteMapping("/{idScheduling}")
   ResponseEntity<Void> deleteScheduling(@NotNull @PathVariable("idScheduling") Long idScheduling);
 
-  @Operation(
-        summary = "Buscar agendamentos por nome do contato",
-        description = "Retorna a lista de agendamentos do profissional logado filtrados pelo nome do contato (case insensitive)."
-  )
+  @Operation(summary = "Buscar agendamentos por nome do contato", description = "Retorna a lista de agendamentos do profissional logado filtrados pelo nome do contato (case insensitive).")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Operação realizada com sucesso."),
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor.")
   })
   @GetMapping("/search")
-  ResponseEntity<List<SchedulingDTO>> searchSchedulingsByContactName(
-        @RequestParam String name
+  ResponseEntity<PageDTO<SchedulingDTO>> searchSchedulingsByContactName(
+        @RequestParam String name,
+        @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
   );
 }
