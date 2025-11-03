@@ -86,6 +86,6 @@ public interface SchedulingApi {
   ResponseEntity<PageDTO<SchedulingDTO>> searchSchedulingsByContactName(
         @RequestParam String name,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int sizee
+        @RequestParam(defaultValue = "10") int size
   );
 }
