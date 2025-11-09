@@ -61,7 +61,7 @@ public class SecurityConfiguration {
     configuration.setAllowedOrigins(
           List.of(
                 "http://localhost:3000",
-                "https://planify-appointments.vercel.app/"
+                "https://planify-appointments.vercel.app"
           )
     );
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
