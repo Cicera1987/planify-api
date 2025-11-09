@@ -28,9 +28,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
   @Value("${frontend.url.local}")
   private String frontendUrlLocal;
 
-  @Value("${frontend.url.prod}")
-  private String frontendUrlProd;
-
   public CustomOAuth2SuccessHandler(
         @Lazy TokenService tokenService,
         @Lazy UserService userService,
@@ -60,7 +57,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     String activeProfile = environment.getProperty("spring.profiles.active", "dev");
 
     String redirectBaseUrl = switch (activeProfile) {
-      case "prod" -> frontendUrlProd;
       case "local" -> frontendUrlLocal;
       default -> frontendUrl;
     };
