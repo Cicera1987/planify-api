@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notifications")
@@ -19,11 +18,22 @@ public class NotificationController implements NotificationApi {
 
   private final NotificationService notificationService;
   private final NotificationTokenService tokenService;
-  private final NotificationHistoryService notificationHistoryService;
+  private final NotificationHistoryService historyService;
 
   @Override
   public ResponseEntity<List<Long>> getContactsWithNotifications() {
-    return ResponseEntity.ok(notificationHistoryService.getContactsWithNotifications());
+    return ResponseEntity.ok(historyService.getContactsWithNotifications());
+  }
+
+  @Override
+  public ResponseEntity<List<NotificationEntity>> getNotifications(Long contactId) {
+    return ResponseEntity.ok(historyService.getNotificationsByContact(contactId));
+  }
+
+  @Override
+  public ResponseEntity<Void> markAsRead(Long notificationId) {
+    historyService.markAsRead(notificationId);
+    return ResponseEntity.ok().build();
   }
 
   @Override
@@ -33,24 +43,8 @@ public class NotificationController implements NotificationApi {
   }
 
   @Override
-  public ResponseEntity<String> sendNotification(
-        @RequestParam String token,
-        @RequestParam String title,
-        @RequestParam String body
-  ) {
+  public ResponseEntity<String> sendNotification(String token, String title, String body) {
     notificationService.sendNotification(token, title, body);
     return ResponseEntity.ok("Notificação enviada!");
-  }
-
-  @Override
-  public ResponseEntity<List<NotificationEntity>> getNotifications(@PathVariable Long contactId) {
-    List<NotificationEntity> notifications = notificationHistoryService.getNotificationsByContact(contactId);
-    return ResponseEntity.ok(notifications);
-  }
-
-  @Override
-  public ResponseEntity<Void> markAsRead(@PathVariable Long notificationId) {
-    notificationHistoryService.markAsRead(notificationId);
-    return ResponseEntity.ok().build();
   }
 }

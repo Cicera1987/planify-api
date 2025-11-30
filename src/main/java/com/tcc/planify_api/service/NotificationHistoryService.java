@@ -34,7 +34,7 @@ public class NotificationHistoryService {
   }
 
   public List<NotificationEntity> getNotificationsByContact(Long contactId) {
-    return notificationRepository.findByContactIdOrderByCreatedAtDesc(contactId);
+    return notificationRepository.findByContact_IdOrderByCreatedAtDesc(contactId);
   }
   public List<Long> getContactsWithNotifications() {
     return notificationRepository.findDistinctContactIds();
