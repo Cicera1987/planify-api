@@ -27,9 +27,16 @@ public class NotificationEntity {
   private Boolean read = false;
 
   @Column(nullable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "contact_id", nullable = false)
   private ContactEntity contact;
+
+  @PrePersist
+  public void prePersist() {
+    if (createdAt == null) {
+      createdAt = LocalDateTime.now();
+    }
+  }
 }

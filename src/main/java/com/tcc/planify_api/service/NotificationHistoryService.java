@@ -8,6 +8,7 @@ import com.tcc.planify_api.repository.NotificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +27,7 @@ public class NotificationHistoryService {
           .title(title)
           .message(message)
           .read(false)
+          .createdAt(LocalDateTime.now())
           .build();
 
     return notificationRepository.save(notification);

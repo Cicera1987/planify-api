@@ -154,7 +154,6 @@ public class SchedulingService {
       );
     }
 
-// SALVAR NO HISTÓRICO
     notificationHistoryService.saveNotification(contact.getId(), title, body);
 
     return mapToDTOWithContact(scheduling);
