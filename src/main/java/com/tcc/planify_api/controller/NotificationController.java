@@ -22,6 +22,11 @@ public class NotificationController implements NotificationApi {
   private final NotificationHistoryService notificationHistoryService;
 
   @Override
+  public ResponseEntity<List<Long>> getContactsWithNotifications() {
+    return ResponseEntity.ok(notificationHistoryService.getContactsWithNotifications());
+  }
+
+  @Override
   public ResponseEntity<String> saveToken(@RequestBody NotificationTokenDTO dto) {
     tokenService.saveToken(dto);
     return ResponseEntity.ok("Token salvo com sucesso!");

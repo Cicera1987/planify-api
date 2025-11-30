@@ -1,6 +1,5 @@
 package com.tcc.planify_api.repository;
 
-import com.tcc.planify_api.entity.NotificationEntity;
 import com.tcc.planify_api.entity.NotificationTokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,5 +1,7 @@
 package com.tcc.planify_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -31,6 +33,7 @@ public class NotificationEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "contact_id", nullable = false)
+  @JsonIgnore
   private ContactEntity contact;
 
   @PrePersist
@@ -38,5 +41,14 @@ public class NotificationEntity {
     if (createdAt == null) {
       createdAt = LocalDateTime.now();
     }
+  }
+  @JsonProperty("contactId")
+  public Long getContactId() {
+    return contact != null ? contact.getId() : null;
+  }
+
+  @JsonProperty("contactName")
+  public String getContactName() {
+    return contact != null ? contact.getName() : null;
   }
 }

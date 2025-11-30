@@ -14,6 +14,10 @@ import java.util.List;
 @RequestMapping("/notifications")
 public interface NotificationApi {
 
+  @Operation(summary = "Listar contatos que possuem notificações")
+  @GetMapping("/contacts-with-notifications")
+  ResponseEntity<List<Long>> getContactsWithNotifications();
+
   @Operation(summary = "Listar notificações do contato")
   @GetMapping("/list/{contactId}")
   ResponseEntity<List<NotificationEntity>> getNotifications(@PathVariable Long contactId);

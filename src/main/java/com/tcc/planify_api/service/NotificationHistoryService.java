@@ -36,7 +36,9 @@ public class NotificationHistoryService {
   public List<NotificationEntity> getNotificationsByContact(Long contactId) {
     return notificationRepository.findByContactIdOrderByCreatedAtDesc(contactId);
   }
-
+  public List<Long> getContactsWithNotifications() {
+    return notificationRepository.findDistinctContactIds();
+  }
   public void markAsRead(Long notificationId) {
     NotificationEntity notification = notificationRepository.findById(notificationId)
           .orElseThrow(() -> new RuntimeException("Notificação não encontrada"));
