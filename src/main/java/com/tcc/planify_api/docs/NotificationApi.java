@@ -1,15 +1,26 @@
 package com.tcc.planify_api.docs;
 
 import com.tcc.planify_api.dto.notification.NotificationTokenDTO;
+import com.tcc.planify_api.entity.NotificationEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Notificações")
 @RequestMapping("/notifications")
 public interface NotificationApi {
+
+  @Operation(summary = "Listar notificações do contato")
+  @GetMapping("/list/{contactId}")
+  ResponseEntity<List<NotificationEntity>> getNotifications(@PathVariable Long contactId);
+
+  @Operation(summary = "Marcar notificação como lida")
+  @PostMapping("/read/{notificationId}")
+  ResponseEntity<Void> markAsRead(@PathVariable Long notificationId);
 
   @Operation(summary = "Salvar token FCM do contato")
   @PostMapping("/token")

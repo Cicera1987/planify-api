@@ -40,6 +40,7 @@ public class SchedulingService {
 
   private final NotificationService notificationService;
   private final NotificationTokenService notificationTokenService;
+  private final NotificationHistoryService notificationHistoryService;
 
   @Transactional(readOnly = true)
   public PageDTO<SchedulingDTO> getActiveSchedulingsForProfessional(Pageable pageable) {
@@ -134,19 +135,27 @@ public class SchedulingService {
     // SALVA agendamento
     scheduling = schedulingRepository.save(scheduling);
 
-    // Enviar PUSH para o cliente
+// Definir título e mensagem
+    String title = "Novo agendamento";
+    String body = "Seu agendamento foi marcado para "
+          + calendarDay.getLocalDate()
+          + " às " + calendarTime.getTime();
+
+// Buscar tokens do cliente
     List<NotificationTokenEntity> tokens =
           notificationTokenService.getTokensByContact(contact.getId());
 
+// Enviar push para todos os dispositivos
     for (NotificationTokenEntity t : tokens) {
       notificationService.sendNotification(
             t.getToken(),
-            "Novo agendamento",
-            "Seu agendamento foi marcado para "
-                  + calendarDay.getLocalDate() +
-                  " às " + calendarTime.getTime()
+            title,
+            body
       );
     }
+
+// SALVAR NO HISTÓRICO
+    notificationHistoryService.saveNotification(contact.getId(), title, body);
 
     return mapToDTOWithContact(scheduling);
   }
@@ -224,7 +233,7 @@ public class SchedulingService {
             body
       );
     }
-
+    notificationHistoryService.saveNotification(contact.getId(), title, body);
     return mapToDTOWithContact(scheduling);
   }
 
