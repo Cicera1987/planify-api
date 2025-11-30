@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/oauth2/**").permitAll()
                 .requestMatchers("/upload/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/health").permitAll()
-                .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**")
+                .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**", "notifications/**")
                 .hasAnyRole("ADMIN", "PROFESSIONAL")
                 .anyRequest().hasRole("ADMIN")
           )
