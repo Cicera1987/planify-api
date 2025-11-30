@@ -38,6 +38,9 @@ public class SchedulingService {
   private final CalendarDayRepository calendarDayRepository;
   private final ApiVersionProvider versionProvider;
 
+  private final NotificationService notificationService;
+  private final NotificationTokenService notificationTokenService;
+
   @Transactional(readOnly = true)
   public PageDTO<SchedulingDTO> getActiveSchedulingsForProfessional(Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
@@ -67,30 +70,27 @@ public class SchedulingService {
   public SchedulingDTO createScheduling(SchedulingCreateDTO dto) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
-    // Profissional
     UserEntity professional = userRepository.findById(professionalId)
           .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado"));
 
-    // Contato (garante que pertence ao profissional logado)
     ContactEntity contact = contactRepository.findById(dto.getContactId())
           .orElseThrow(() -> new IllegalArgumentException("Contato não encontrado"));
+
     if (!contact.getProfessional().getId().equals(professionalId)) {
       throw new IllegalArgumentException("Contato não pertence ao profissional logado");
     }
 
-    // Dia e Horário
     CalendarDayEntity calendarDay = calendarDayRepository.findById(dto.getCalendarDayId())
           .orElseThrow(() -> new IllegalArgumentException("Dia não encontrado"));
+
     CalendarTimeEntity calendarTime = calendarTimeRepository.findById(dto.getCalendarTimeId())
           .orElseThrow(() -> new IllegalArgumentException("Horário não encontrado"));
 
-    // Verifica conflito no horário
     boolean existsConflict = schedulingRepository.existsByCalendarTimeAndProfessional(calendarTime, professional);
     if (existsConflict) {
       throw new IllegalArgumentException("Horário já ocupado");
     }
 
-    // Cria agendamento
     SchedulingEntity scheduling = SchedulingEntity.builder()
           .contact(contact)
           .professional(professional)
@@ -100,7 +100,6 @@ public class SchedulingService {
           .createdAt(LocalDateTime.now())
           .build();
 
-    // Serviços
     if (dto.getServiceId() != null && !dto.getServiceId().isEmpty()) {
       List<TypeOfServiceEntity> services = typeOfServiceRepository.findAllById(dto.getServiceId());
 
@@ -109,6 +108,7 @@ public class SchedulingService {
       }
 
       if (dto.getPackageId() != null) {
+
         for (TypeOfServiceEntity service : services) {
           debitPackageItem(dto.getPackageId(), service.getId());
 
@@ -120,22 +120,41 @@ public class SchedulingService {
           scheduling.addService(ps.getService());
           scheduling.setPackageEntity(ps.getPackageEntity());
         }
+
       } else {
         for (TypeOfServiceEntity service : services) {
           scheduling.addService(service);
         }
       }
+
     } else if (dto.getPackageId() != null) {
       throw new IllegalArgumentException("Deve informar ao menos um serviço dentro do pacote");
     }
 
+    // SALVA agendamento
     scheduling = schedulingRepository.save(scheduling);
+
+    // Enviar PUSH para o cliente
+    List<NotificationTokenEntity> tokens =
+          notificationTokenService.getTokensByContact(contact.getId());
+
+    for (NotificationTokenEntity t : tokens) {
+      notificationService.sendNotification(
+            t.getToken(),
+            "Novo agendamento",
+            "Seu agendamento foi marcado para "
+                  + calendarDay.getLocalDate() +
+                  " às " + calendarTime.getTime()
+      );
+    }
+
     return mapToDTOWithContact(scheduling);
   }
 
 
   @Transactional
   public SchedulingDTO updateStatus(Long schedulingId, StatusAgendamento newStatus) {
+
     SchedulingEntity scheduling = schedulingRepository.findById(schedulingId)
           .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
 
@@ -143,15 +162,68 @@ public class SchedulingService {
     boolean wasConcluded = oldStatus.equals(StatusAgendamento.CONCLUIDO.getDescription());
     boolean willBeConcluded = newStatus == StatusAgendamento.CONCLUIDO;
 
-    // Debitar ou restaurar quantidade do pacote
+    // Debitar ou restaurar quantidade do pacote (caso esteja usando pacote)
     if (!wasConcluded && willBeConcluded && scheduling.getPackageEntity() != null) {
       debitPackageItem(scheduling.getPackageEntity().getId(), scheduling.getService().getId());
-    } else if (wasConcluded && !willBeConcluded && scheduling.getPackageEntity() != null) {
+    }
+    else if (wasConcluded && !willBeConcluded && scheduling.getPackageEntity() != null) {
       restorePackageItem(scheduling.getPackageEntity().getId(), scheduling.getService().getId());
     }
 
+    // Atualiza status
     scheduling.setStatus(newStatus.getDescription());
     schedulingRepository.save(scheduling);
+
+    // Envio das Notificações via Push
+
+    ContactEntity contact = scheduling.getContact();
+    CalendarDayEntity calendarDay = scheduling.getCalendarDay();
+    CalendarTimeEntity calendarTime = scheduling.getCalendarTime();
+
+    // Buscar os tokens desse contato
+    List<NotificationTokenEntity> tokens =
+          notificationTokenService.getTokensByContact(contact.getId());
+
+    // Definir mensagem conforme o status
+    String title = "Atualização no agendamento";
+    String body;
+
+    switch (newStatus) {
+      case CONFIRMADO:
+        body = "Seu agendamento foi confirmado para "
+              + calendarDay.getLocalDate()
+              + " às " + calendarTime.getTime();
+        break;
+
+      case CANCELADO:
+        body = "Seu agendamento em "
+              + calendarDay.getLocalDate()
+              + " às " + calendarTime.getTime()
+              + " foi cancelado.";
+        break;
+
+      case REMARCADO:
+        body = "Seu agendamento foi remarcado para "
+              + calendarDay.getLocalDate()
+              + " às " + calendarTime.getTime();
+        break;
+
+      case CONCLUIDO:
+        body = "Seu atendimento foi concluído!";
+        break;
+
+      default:
+        body = "O status do seu agendamento foi atualizado.";
+    }
+
+    // Enviar push para todos os dispositivos do cliente
+    for (NotificationTokenEntity t : tokens) {
+      notificationService.sendNotification(
+            t.getToken(),
+            title,
+            body
+      );
+    }
 
     return mapToDTOWithContact(scheduling);
   }
