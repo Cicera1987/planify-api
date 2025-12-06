@@ -137,7 +137,7 @@ public class SchedulingService {
 
 // Definir título e mensagem
     String title = "Novo agendamento";
-    String body = "Seu agendamento foi marcado para "
+    String body = "Um novo agendamento foi marcado para "
           + calendarDay.getLocalDate()
           + " às " + calendarTime.getTime();
 
@@ -198,30 +198,30 @@ public class SchedulingService {
 
     switch (newStatus) {
       case CONFIRMADO:
-        body = "Seu agendamento foi confirmado para "
+        body = "Agendamento confirmado para "
               + calendarDay.getLocalDate()
               + " às " + calendarTime.getTime();
         break;
 
       case CANCELADO:
-        body = "Seu agendamento em "
+        body = "O agendamento em "
               + calendarDay.getLocalDate()
               + " às " + calendarTime.getTime()
               + " foi cancelado.";
         break;
 
       case REMARCADO:
-        body = "Seu agendamento foi remarcado para "
+        body = "Agendamento remarcado para "
               + calendarDay.getLocalDate()
               + " às " + calendarTime.getTime();
         break;
 
       case CONCLUIDO:
-        body = "Seu atendimento foi concluído!";
+        body = "Agendamento concluído!";
         break;
 
       default:
-        body = "O status do seu agendamento foi atualizado.";
+        body = "O status do agendamento foi atualizado.";
     }
 
     // Enviar push para todos os dispositivos do cliente
