@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientPackageDTO {
-  private Long id; // id do ClientPackageEntity
-  private String name; // nome do pacote
-  private List<ClientPackageServiceDTO> services; // quantidade restante por serviço
+  private Long id;
+  private String name;
+  private List<ClientPackageServiceDTO> services;
 }
