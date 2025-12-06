@@ -47,4 +47,16 @@ public class NotificationController implements NotificationApi {
     notificationService.sendNotification(token, title, body);
     return ResponseEntity.ok("Notificação enviada!");
   }
+
+  @Override
+  public ResponseEntity<Void> deleteNotification(Long notificationId) {
+    historyService.deleteNotification(notificationId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteAllNotifications(Long contactId) {
+    historyService.deleteAllByContact(contactId);
+    return ResponseEntity.noContent().build();
+  }
 }

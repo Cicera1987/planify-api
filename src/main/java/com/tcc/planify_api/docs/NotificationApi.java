@@ -46,4 +46,12 @@ public interface NotificationApi {
         @RequestParam String title,
         @RequestParam String body
   );
+
+  @Operation(summary = "Excluir UMA notificação")
+  @DeleteMapping("/{notificationId}")
+  ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId);
+
+  @Operation(summary = "Excluir TODAS notificações do contato")
+  @DeleteMapping("/contact/{contactId}")
+  ResponseEntity<Void> deleteAllNotifications(@PathVariable Long contactId);
 }

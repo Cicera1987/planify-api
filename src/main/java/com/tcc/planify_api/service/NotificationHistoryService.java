@@ -45,4 +45,16 @@ public class NotificationHistoryService {
     notification.setRead(true);
     notificationRepository.save(notification);
   }
+  public void deleteNotification(Long notificationId) {
+    NotificationEntity notification = notificationRepository.findById(notificationId)
+          .orElseThrow(() -> new RuntimeException("Notificação não encontrada"));
+
+    notificationRepository.delete(notification);
+  }
+
+  public void deleteAllByContact(Long contactId) {
+    List<NotificationEntity> list = notificationRepository.findByContact_IdOrderByCreatedAtDesc(contactId);
+    notificationRepository.deleteAll(list);
+  }
+
 }
