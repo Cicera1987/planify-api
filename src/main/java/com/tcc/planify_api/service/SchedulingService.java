@@ -10,6 +10,7 @@ import com.tcc.planify_api.dto.scheduling.SchedulingDTO;
 import com.tcc.planify_api.dto.typeOfService.TypeOfServiceDTO;
 import com.tcc.planify_api.entity.*;
 import com.tcc.planify_api.enums.StatusAgendamento;
+import com.tcc.planify_api.exception.RegraDeNegocioException;
 import com.tcc.planify_api.repository.*;
 import com.tcc.planify_api.util.ApiVersionProvider;
 import com.tcc.planify_api.util.AuthUtil;
@@ -72,24 +73,24 @@ public class SchedulingService {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     UserEntity professional = userRepository.findById(professionalId)
-          .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Profissional não encontrado"));
 
     ContactEntity contact = contactRepository.findById(dto.getContactId())
-          .orElseThrow(() -> new IllegalArgumentException("Contato não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Contato não encontrado"));
 
     if (!contact.getProfessional().getId().equals(professionalId)) {
-      throw new IllegalArgumentException("Contato não pertence ao profissional logado");
+      throw new RegraDeNegocioException("Contato não pertence ao profissional logado");
     }
 
     CalendarDayEntity calendarDay = calendarDayRepository.findById(dto.getCalendarDayId())
-          .orElseThrow(() -> new IllegalArgumentException("Dia não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Dia não encontrado"));
 
     CalendarTimeEntity calendarTime = calendarTimeRepository.findById(dto.getCalendarTimeId())
-          .orElseThrow(() -> new IllegalArgumentException("Horário não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Horário não encontrado"));
 
     boolean existsConflict = schedulingRepository.existsByCalendarTimeAndProfessional(calendarTime, professional);
     if (existsConflict) {
-      throw new IllegalArgumentException("Horário já ocupado");
+      throw new RegraDeNegocioException("Horário já ocupado");
     }
 
     SchedulingEntity scheduling = SchedulingEntity.builder()
@@ -105,7 +106,7 @@ public class SchedulingService {
       List<TypeOfServiceEntity> services = typeOfServiceRepository.findAllById(dto.getServiceId());
 
       if (services.size() != dto.getServiceId().size()) {
-        throw new IllegalArgumentException("Um ou mais serviços não foram encontrados");
+        throw new RegraDeNegocioException("Um ou mais serviços não foram encontrados");
       }
 
       if (dto.getPackageId() != null) {
@@ -115,7 +116,7 @@ public class SchedulingService {
 
           PackageServiceEntity ps = packageServiceRepository
                 .findByPackageEntityIdAndServiceId(dto.getPackageId(), service.getId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RegraDeNegocioException(
                       "Serviço " + service.getName() + " não disponível no pacote"));
 
           scheduling.addService(ps.getService());
@@ -129,7 +130,7 @@ public class SchedulingService {
       }
 
     } else if (dto.getPackageId() != null) {
-      throw new IllegalArgumentException("Deve informar ao menos um serviço dentro do pacote");
+      throw new RegraDeNegocioException("Deve informar ao menos um serviço dentro do pacote");
     }
 
     // SALVA agendamento
@@ -164,7 +165,7 @@ public class SchedulingService {
   public SchedulingDTO updateStatus(Long schedulingId, StatusAgendamento newStatus) {
 
     SchedulingEntity scheduling = schedulingRepository.findById(schedulingId)
-          .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Agendamento não encontrado"));
 
     String oldStatus = scheduling.getStatus();
     boolean wasConcluded = oldStatus.equals(StatusAgendamento.CONCLUIDO.getDescription());
@@ -239,7 +240,7 @@ public class SchedulingService {
   @Transactional
   public void deleteScheduling(Long schedulingId) {
     SchedulingEntity scheduling = schedulingRepository.findById(schedulingId)
-          .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+          .orElseThrow(() -> new RegraDeNegocioException("Agendamento não encontrado"));
 
     if (scheduling.getStatus().equals(StatusAgendamento.CONCLUIDO.getDescription())
           && scheduling.getPackageEntity() != null) {
@@ -248,22 +249,22 @@ public class SchedulingService {
 
     schedulingRepository.delete(scheduling);
   }
-
-
   private void debitPackageItem(Long packageId, Long serviceId) {
-    PackageServiceEntity ps = packageServiceRepository.findByPackageEntityIdAndServiceId(packageId, serviceId)
-          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado no pacote"));
+    PackageServiceEntity ps = packageServiceRepository
+          .findByPackageEntityIdAndServiceId(packageId, serviceId)
+          .orElseThrow(() -> new RegraDeNegocioException("Serviço não encontrado no pacote"));
 
     if (ps.getQuantity() <= 0)
-      throw new IllegalArgumentException("Quantidade do serviço esgotada no pacote");
+      throw new RegraDeNegocioException("Quantidade do serviço esgotada no pacote");
 
     ps.setQuantity(ps.getQuantity() - 1);
     packageServiceRepository.save(ps);
   }
 
+
   private void restorePackageItem(Long packageId, Long serviceId) {
     PackageServiceEntity ps = packageServiceRepository.findByPackageEntityIdAndServiceId(packageId, serviceId)
-          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado no pacote"));
+          .orElseThrow(() -> new RegraDeNegocioException("Serviço não encontrado no pacote"));
 
     ps.setQuantity(ps.getQuantity() + 1);
     packageServiceRepository.save(ps);
