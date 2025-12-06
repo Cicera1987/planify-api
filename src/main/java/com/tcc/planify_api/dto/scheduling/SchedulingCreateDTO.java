@@ -17,4 +17,5 @@ public class SchedulingCreateDTO {
   private Long packageId;
   private Long calendarDayId;
   private Long calendarTimeId;
+  private Long clientPackageId;
 }

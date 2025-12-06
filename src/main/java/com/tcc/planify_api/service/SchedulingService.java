@@ -42,6 +42,9 @@ public class SchedulingService {
   private final NotificationService notificationService;
   private final NotificationTokenService notificationTokenService;
   private final NotificationHistoryService notificationHistoryService;
+  private final ClientPackageServiceRepository clientPackageServiceRepository;
+  private final ClientPackageRepository clientPackageRepository;
+
 
   @Transactional(readOnly = true)
   public PageDTO<SchedulingDTO> getActiveSchedulingsForProfessional(Pageable pageable) {
@@ -72,9 +75,11 @@ public class SchedulingService {
   public SchedulingDTO createScheduling(SchedulingCreateDTO dto) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
+    // Buscar profissional
     UserEntity professional = userRepository.findById(professionalId)
           .orElseThrow(() -> new RegraDeNegocioException("Profissional não encontrado"));
 
+    // Buscar contato
     ContactEntity contact = contactRepository.findById(dto.getContactId())
           .orElseThrow(() -> new RegraDeNegocioException("Contato não encontrado"));
 
@@ -82,17 +87,20 @@ public class SchedulingService {
       throw new RegraDeNegocioException("Contato não pertence ao profissional logado");
     }
 
+    // Buscar dia e horário
     CalendarDayEntity calendarDay = calendarDayRepository.findById(dto.getCalendarDayId())
           .orElseThrow(() -> new RegraDeNegocioException("Dia não encontrado"));
 
     CalendarTimeEntity calendarTime = calendarTimeRepository.findById(dto.getCalendarTimeId())
           .orElseThrow(() -> new RegraDeNegocioException("Horário não encontrado"));
 
+    // Checar conflito de horário
     boolean existsConflict = schedulingRepository.existsByCalendarTimeAndProfessional(calendarTime, professional);
     if (existsConflict) {
       throw new RegraDeNegocioException("Horário já ocupado");
     }
 
+    // Criar agendamento
     SchedulingEntity scheduling = SchedulingEntity.builder()
           .contact(contact)
           .professional(professional)
@@ -102,6 +110,7 @@ public class SchedulingService {
           .createdAt(LocalDateTime.now())
           .build();
 
+    // Serviços
     if (dto.getServiceId() != null && !dto.getServiceId().isEmpty()) {
       List<TypeOfServiceEntity> services = typeOfServiceRepository.findAllById(dto.getServiceId());
 
@@ -109,57 +118,63 @@ public class SchedulingService {
         throw new RegraDeNegocioException("Um ou mais serviços não foram encontrados");
       }
 
-      if (dto.getPackageId() != null) {
+      // Pacote do cliente
+      if (dto.getClientPackageId() != null) {
+        ClientPackageEntity clientPackage = clientPackageRepository.findById(dto.getClientPackageId())
+              .orElseThrow(() -> new RegraDeNegocioException("Pacote do cliente não encontrado"));
+
+        scheduling.setClientPackage(clientPackage);
 
         for (TypeOfServiceEntity service : services) {
-          debitPackageItem(dto.getPackageId(), service.getId());
-
-          PackageServiceEntity ps = packageServiceRepository
-                .findByPackageEntityIdAndServiceId(dto.getPackageId(), service.getId())
+          // Debitar quantidade
+          ClientPackageServiceEntity cps = clientPackage.getServices().stream()
+                .filter(s -> s.getService().getId().equals(service.getId()))
+                .findFirst()
                 .orElseThrow(() -> new RegraDeNegocioException(
-                      "Serviço " + service.getName() + " não disponível no pacote"));
+                      "Serviço " + service.getName() + " não disponível no pacote do cliente"
+                ));
 
-          scheduling.addService(ps.getService());
-          scheduling.setPackageEntity(ps.getPackageEntity());
+          if (cps.getQuantity() <= 0) {
+            throw new RegraDeNegocioException(
+                  "Quantidade do serviço " + service.getName() + " esgotada no pacote do cliente"
+            );
+          }
+
+          cps.setQuantity(cps.getQuantity() - 1);
+          clientPackageServiceRepository.save(cps);
+
+          // Adicionar serviço no agendamento
+          scheduling.addService(cps.getService());
         }
 
       } else {
+        // Sem pacote
         for (TypeOfServiceEntity service : services) {
           scheduling.addService(service);
         }
       }
 
-    } else if (dto.getPackageId() != null) {
+    } else if (dto.getClientPackageId() != null) {
       throw new RegraDeNegocioException("Deve informar ao menos um serviço dentro do pacote");
     }
 
-    // SALVA agendamento
+    // Salvar agendamento
     scheduling = schedulingRepository.save(scheduling);
 
-// Definir título e mensagem
+    // Notificações
     String title = "Novo agendamento";
     String body = "Um novo agendamento foi marcado para "
           + calendarDay.getLocalDate()
           + " às " + calendarTime.getTime();
 
-// Buscar tokens do cliente
-    List<NotificationTokenEntity> tokens =
-          notificationTokenService.getTokensByContact(contact.getId());
-
-// Enviar push para todos os dispositivos
+    List<NotificationTokenEntity> tokens = notificationTokenService.getTokensByContact(contact.getId());
     for (NotificationTokenEntity t : tokens) {
-      notificationService.sendNotification(
-            t.getToken(),
-            title,
-            body
-      );
+      notificationService.sendNotification(t.getToken(), title, body);
     }
-
     notificationHistoryService.saveNotification(contact.getId(), title, body);
 
     return mapToDTOWithContact(scheduling);
   }
-
 
   @Transactional
   public SchedulingDTO updateStatus(Long schedulingId, StatusAgendamento newStatus) {
@@ -171,71 +186,49 @@ public class SchedulingService {
     boolean wasConcluded = oldStatus.equals(StatusAgendamento.CONCLUIDO.getDescription());
     boolean willBeConcluded = newStatus == StatusAgendamento.CONCLUIDO;
 
-    // Debitar ou restaurar quantidade do pacote (caso esteja usando pacote)
-    if (!wasConcluded && willBeConcluded && scheduling.getPackageEntity() != null) {
-      debitPackageItem(scheduling.getPackageEntity().getId(), scheduling.getService().getId());
-    }
-    else if (wasConcluded && !willBeConcluded && scheduling.getPackageEntity() != null) {
-      restorePackageItem(scheduling.getPackageEntity().getId(), scheduling.getService().getId());
+    // Debitar ou restaurar quantidade do pacote do cliente (caso exista)
+    if (scheduling.getClientPackage() != null && scheduling.getServices() != null) {
+      for (TypeOfServiceEntity service : scheduling.getServices()) {
+        if (!wasConcluded && willBeConcluded) {
+          debitClientPackageItem(scheduling.getClientPackage().getId(), service.getId());
+        } else if (wasConcluded && !willBeConcluded) {
+          restoreClientPackageItem(scheduling.getClientPackage().getId(), service.getId());
+        }
+      }
     }
 
     // Atualiza status
     scheduling.setStatus(newStatus.getDescription());
     schedulingRepository.save(scheduling);
 
-    // Envio das Notificações via Push
-
+    // Envio das notificações
     ContactEntity contact = scheduling.getContact();
     CalendarDayEntity calendarDay = scheduling.getCalendarDay();
     CalendarTimeEntity calendarTime = scheduling.getCalendarTime();
 
-    // Buscar os tokens desse contato
     List<NotificationTokenEntity> tokens =
           notificationTokenService.getTokensByContact(contact.getId());
 
-    // Definir mensagem conforme o status
     String title = "Atualização no agendamento";
     String body;
 
     switch (newStatus) {
-      case CONFIRMADO:
-        body = "Agendamento confirmado para "
-              + calendarDay.getLocalDate()
-              + " às " + calendarTime.getTime();
-        break;
-
-      case CANCELADO:
-        body = "O agendamento em "
-              + calendarDay.getLocalDate()
-              + " às " + calendarTime.getTime()
-              + " foi cancelado.";
-        break;
-
-      case REMARCADO:
-        body = "Agendamento remarcado para "
-              + calendarDay.getLocalDate()
-              + " às " + calendarTime.getTime();
-        break;
-
-      case CONCLUIDO:
-        body = "Agendamento concluído!";
-        break;
-
-      default:
-        body = "O status do agendamento foi atualizado.";
+      case CONFIRMADO -> body = "Agendamento confirmado para " + calendarDay.getLocalDate() + " às " + calendarTime.getTime();
+      case CANCELADO -> body = "O agendamento em " + calendarDay.getLocalDate() + " às " + calendarTime.getTime() + " foi cancelado.";
+      case REMARCADO -> body = "Agendamento remarcado para " + calendarDay.getLocalDate() + " às " + calendarTime.getTime();
+      case CONCLUIDO -> body = "Agendamento concluído!";
+      default -> body = "O status do agendamento foi atualizado.";
     }
 
-    // Enviar push para todos os dispositivos do cliente
     for (NotificationTokenEntity t : tokens) {
-      notificationService.sendNotification(
-            t.getToken(),
-            title,
-            body
-      );
+      notificationService.sendNotification(t.getToken(), title, body);
     }
+
     notificationHistoryService.saveNotification(contact.getId(), title, body);
+
     return mapToDTOWithContact(scheduling);
   }
+
 
   @Transactional
   public void deleteScheduling(Long schedulingId) {
@@ -243,32 +236,48 @@ public class SchedulingService {
           .orElseThrow(() -> new RegraDeNegocioException("Agendamento não encontrado"));
 
     if (scheduling.getStatus().equals(StatusAgendamento.CONCLUIDO.getDescription())
-          && scheduling.getPackageEntity() != null) {
-      restorePackageItem(scheduling.getPackageEntity().getId(), scheduling.getService().getId());
+          && scheduling.getClientPackage() != null
+          && scheduling.getServices() != null) {
+      for (TypeOfServiceEntity service : scheduling.getServices()) {
+        restoreClientPackageItem(scheduling.getClientPackage().getId(), service.getId());
+      }
     }
 
     schedulingRepository.delete(scheduling);
   }
-  private void debitPackageItem(Long packageId, Long serviceId) {
-    PackageServiceEntity ps = packageServiceRepository
-          .findByPackageEntityIdAndServiceId(packageId, serviceId)
-          .orElseThrow(() -> new RegraDeNegocioException("Serviço não encontrado no pacote"));
 
-    if (ps.getQuantity() <= 0)
-      throw new RegraDeNegocioException("Quantidade do serviço esgotada no pacote");
+  @Transactional
+  public void debitClientPackageItem(Long clientPackageId, Long serviceId) {
+    ClientPackageEntity clientPackage = clientPackageRepository.findById(clientPackageId)
+          .orElseThrow(() -> new IllegalArgumentException("Pacote do cliente não encontrado"));
 
-    ps.setQuantity(ps.getQuantity() - 1);
-    packageServiceRepository.save(ps);
+    ClientPackageServiceEntity cps = clientPackage.getServices().stream()
+          .filter(s -> s.getService().getId().equals(serviceId))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("Serviço não disponível no pacote do cliente"));
+
+    if (cps.getQuantity() <= 0) {
+      throw new IllegalArgumentException("Quantidade do serviço esgotada no pacote do cliente");
+    }
+
+    cps.setQuantity(cps.getQuantity() - 1);
+    clientPackageServiceRepository.save(cps);
   }
 
+  @Transactional
+  public void restoreClientPackageItem(Long clientPackageId, Long serviceId) {
+    ClientPackageEntity clientPackage = clientPackageRepository.findById(clientPackageId)
+          .orElseThrow(() -> new IllegalArgumentException("Pacote do cliente não encontrado"));
 
-  private void restorePackageItem(Long packageId, Long serviceId) {
-    PackageServiceEntity ps = packageServiceRepository.findByPackageEntityIdAndServiceId(packageId, serviceId)
-          .orElseThrow(() -> new RegraDeNegocioException("Serviço não encontrado no pacote"));
+    ClientPackageServiceEntity cps = clientPackage.getServices().stream()
+          .filter(s -> s.getService().getId().equals(serviceId))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("Serviço não disponível no pacote do cliente"));
 
-    ps.setQuantity(ps.getQuantity() + 1);
-    packageServiceRepository.save(ps);
+    cps.setQuantity(cps.getQuantity() + 1);
+    clientPackageServiceRepository.save(cps);
   }
+
 
   @Transactional(readOnly = true)
   public PageDTO<SchedulingDTO> searchSchedulingsByContactName(String name, Pageable pageable) {

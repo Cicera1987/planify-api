@@ -60,6 +60,10 @@ public class SchedulingEntity {
   )
   private List<TypeOfServiceEntity> services = new ArrayList<>();
 
+  @ManyToOne
+  @JoinColumn(name = "client_package_id")
+  private ClientPackageEntity clientPackage;
+
   public void addService(TypeOfServiceEntity service) {
     if (this.services == null) {
       this.services = new ArrayList<>();
