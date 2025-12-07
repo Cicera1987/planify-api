@@ -33,7 +33,8 @@ public class SecurityConfiguration {
     http
           .headers(headers -> headers.frameOptions(frame -> frame.disable()))
           .cors(withDefaults())
-          .csrf(csrf -> csrf.disable())
+          // NÃO desabilite CSRF totalmente
+          .csrf(csrf -> csrf.ignoringRequestMatchers("/upload/**"))
           .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/oauth2/**").permitAll()
@@ -44,7 +45,7 @@ public class SecurityConfiguration {
                 .anyRequest().hasRole("ADMIN")
           )
           .oauth2Login(oauth2 -> oauth2
-                      .successHandler(customOAuth2SuccessHandler)
+                .successHandler(customOAuth2SuccessHandler)
           );
 
     http.addFilterBefore(
