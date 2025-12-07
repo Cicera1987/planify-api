@@ -9,9 +9,11 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,31 +33,33 @@ public class SecurityConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-          .headers(headers -> headers.frameOptions(frame -> frame.disable()))
           .cors(withDefaults())
-          // NÃO desabilite CSRF totalmente
-          .csrf(csrf -> csrf.ignoringRequestMatchers("/upload/**"))
+          .csrf(csrf -> csrf.disable())
+          .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+
+          .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+          .logout(logout -> logout.disable())
+
           .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/oauth2/**").permitAll()
+                .requestMatchers("/auth/**", "/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health").permitAll()
                 .requestMatchers("/upload/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/actuator/health").permitAll()
-                .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**", "/packages/**", "/calendar/**", "/scheduling/**", "notifications/**")
+                .requestMatchers("/users/**", "/clients/**", "/contacts/**", "/services/**",
+                      "/packages/**", "/calendar/**", "/scheduling/**", "/notifications/**")
                 .hasAnyRole("ADMIN", "PROFESSIONAL")
                 .anyRequest().hasRole("ADMIN")
           )
-          .oauth2Login(oauth2 -> oauth2
+
+          .oauth2Login(oauth -> oauth
                 .successHandler(customOAuth2SuccessHandler)
           );
 
     http.addFilterBefore(
           new TokenAuthenticationFilter(tokenService),
-          org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+          UsernamePasswordAuthenticationFilter.class
     );
 
     return http.build();
   }
-
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
