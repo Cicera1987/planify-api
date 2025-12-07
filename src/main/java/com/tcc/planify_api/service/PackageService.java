@@ -93,7 +93,7 @@ public class PackageService {
 
     // Monta os novos
     Map<Long, Long> serviceCount = dto.getServiceIds().stream()
-          .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+          .collect(Collectors.groupingBy(serviceId -> serviceId, Collectors.counting()));
 
     List<PackageServiceEntity> newRelations = new ArrayList<>();
 

@@ -24,8 +24,7 @@ public class CalendarController implements CalendarApi {
 
   @Override
   public ResponseEntity<List<CalendarDayDTO>> listDays() {
-    Long userId = AuthUtil.getAuthenticatedUserId();
-    return ResponseEntity.ok(calendarService.listDays(userId));
+    return ResponseEntity.ok(calendarService.listDays());
   }
 
   @Override

@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface PackageServiceRepository extends JpaRepository<PackageServiceEntity, Long> {
   List<PackageServiceEntity> findByPackageEntityId(Long packageId);
   Optional<PackageServiceEntity> findByPackageEntityIdAndServiceId(Long packageId, Long serviceId);
+  void deleteByPackageEntityId(Long id);
 }

@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -108,10 +107,6 @@ public class CalendarService {
     return mapToDTO(dayRepository.save(day));
   }
 
-
-  /**
-   * Remover um dia — só se for dono
-   */
   @Transactional
   public void deleteDay(Long idDay) throws Exception {
     Long userId = AuthUtil.getAuthenticatedUserId();
@@ -122,10 +117,6 @@ public class CalendarService {
     dayRepository.delete(day);
   }
 
-
-  /**
-   * Adicionar horário — só se o dia for do usuário
-   */
   @Transactional
   public CalendarTimeDTO addTime(Long idDay, CalendarTimeCreateDTO dto) {
     Long userId = AuthUtil.getAuthenticatedUserId();
