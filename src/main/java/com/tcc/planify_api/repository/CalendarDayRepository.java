@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CalendarDayRepository extends JpaRepository<CalendarDayEntity, Long> {
+
   Optional<CalendarDayEntity> findByUserIdAndLocalDate(Long userId, LocalDate localDate);
+
   List<CalendarDayEntity> findByUserId(Long userId);
+
+  Optional<CalendarDayEntity> findByIdAndUserId(Long id, Long userId);
 }

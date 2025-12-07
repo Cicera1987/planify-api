@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -31,118 +32,121 @@ public class CalendarService {
   public List<CalendarDayDTO> createDay(List<CalendarDayCreateDTO> dayDTOs) {
     Long userId = AuthUtil.getAuthenticatedUserId();
 
-    List<CalendarDayEntity> savedDays = dayDTOs.stream().map(dto -> {
+    List<CalendarDayEntity> savedDays = dayDTOs.stream()
+          .map(dto -> {
+            CalendarDayEntity day = dayRepository
+                  .findByUserIdAndLocalDate(userId, dto.getLocalDate())
+                  .orElseGet(() -> new CalendarDayEntity(
+                        null,
+                        userId,
+                        dto.getLocalDate(),
+                        new ArrayList<>(),
+                        LocalDateTime.now()
+                  ));
 
-      CalendarDayEntity day = dayRepository.findByUserIdAndLocalDate(userId, dto.getLocalDate())
-            .orElseGet(() -> {
-              CalendarDayEntity newDay = new CalendarDayEntity();
-              newDay.setUserId(userId);
-              newDay.setLocalDate(dto.getLocalDate());
-              newDay.setTimes(new ArrayList<>());
-              return newDay;
-            });
+            for (CalendarTimeCreateDTO timeDTO : dto.getTimes()) {
+              boolean exists = day.getTimes().stream()
+                    .anyMatch(t -> t.getTime().equals(timeDTO.getTime()));
 
-      for (CalendarTimeCreateDTO timeDTO : dto.getTimes()) {
-        boolean exists = day.getTimes().stream()
-              .anyMatch(t -> t.getTime().equals(timeDTO.getTime()));
-        if (!exists) {
-          CalendarTimeEntity time = new CalendarTimeEntity();
-          time.setTime(timeDTO.getTime());
-          time.setCalendarDay(day);
-          day.getTimes().add(time);
-        }
-      }
+              if (!exists) {
+                CalendarTimeEntity time = new CalendarTimeEntity();
+                time.setTime(timeDTO.getTime());
+                time.setCalendarDay(day);
+                day.getTimes().add(time);
+              }
+            }
 
-      return dayRepository.save(day);
-    }).toList();
-
-    return savedDays.stream()
-          .map(this::mapToDTO)
-          .collect(Collectors.toList());
-  }
-
-  @Transactional(readOnly = true)
-  public List<CalendarDayDTO> listDays(Long userId) {
-    List<CalendarDayEntity> days = dayRepository.findByUserId(userId);
-
-    return days.stream()
-          .map(day -> {
-            // Mapeia cada dia para o DTO
-            CalendarDayDTO dto = new CalendarDayDTO();
-            dto.setId(day.getId());
-            dto.setUserId(day.getUserId());
-            dto.setLocalDate(day.getLocalDate());
-
-            List<CalendarTimeDTO> times = day.getTimes().stream()
-                  .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
-                  .map(time -> {
-                    boolean isOccupied = schedulingRepository.existsByCalendarTimeId(time.getId());
-
-                    CalendarTimeDTO timeDTO = new CalendarTimeDTO();
-                    timeDTO.setId(time.getId());
-                    timeDTO.setTime(time.getTime());
-                    timeDTO.setAvailable(!isOccupied);
-                    return timeDTO;
-                  })
-                  .collect(Collectors.toList());
-
-            dto.setTimes(times);
-            return dto;
+            return dayRepository.save(day);
           })
           .toList();
+
+    return savedDays.stream().map(this::mapToDTO).toList();
   }
 
   @Transactional(readOnly = true)
-  public List<CalendarDayDTO> getCalendarDaysByUser(Long userId) {
-    return dayRepository.findAll().stream()
-          .filter(day -> day.getUserId().equals(userId))
-          .map(this::mapToDTO)
-          .collect(Collectors.toList());
+  public List<CalendarDayDTO> listDays() {
+    Long userId = AuthUtil.getAuthenticatedUserId();
+
+    List<CalendarDayEntity> days = dayRepository.findByUserId(userId);
+
+    return days.stream().map(day -> {
+      CalendarDayDTO dto = new CalendarDayDTO();
+      dto.setId(day.getId());
+      dto.setUserId(day.getUserId());
+      dto.setLocalDate(day.getLocalDate());
+
+      List<CalendarTimeDTO> times = day.getTimes().stream()
+            .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
+            .map(time -> {
+              boolean occupied = schedulingRepository.existsByCalendarTimeId(time.getId());
+              return new CalendarTimeDTO(time.getId(), time.getTime(), !occupied);
+            })
+            .toList();
+
+      dto.setTimes(times);
+      return dto;
+    }).toList();
   }
 
   @Transactional
   public CalendarDayDTO updateDay(Long idDay, CalendarDayCreateDTO dto) throws Exception {
-    CalendarDayEntity day = dayRepository.findById(idDay)
+    Long userId = AuthUtil.getAuthenticatedUserId();
+
+    CalendarDayEntity day = dayRepository.findByIdAndUserId(idDay, userId)
           .orElseThrow(() -> new Exception("Dia não encontrado"));
 
     day.setLocalDate(dto.getLocalDate());
 
     day.getTimes().clear();
-    List<CalendarTimeEntity> times = dto.getTimes().stream().map(timeDTO -> {
+    for (CalendarTimeCreateDTO t : dto.getTimes()) {
       CalendarTimeEntity time = new CalendarTimeEntity();
-      time.setTime(timeDTO.getTime());
+      time.setTime(t.getTime());
       time.setCalendarDay(day);
-      return time;
-    }).toList();
+      day.getTimes().add(time);
+    }
 
-    day.getTimes().addAll(times);
-
-    CalendarDayEntity updatedDay = dayRepository.save(day);
-    return mapToDTO(updatedDay);
+    return mapToDTO(dayRepository.save(day));
   }
 
+
+  /**
+   * Remover um dia — só se for dono
+   */
   @Transactional
   public void deleteDay(Long idDay) throws Exception {
-    CalendarDayEntity day = dayRepository.findById(idDay)
+    Long userId = AuthUtil.getAuthenticatedUserId();
+
+    CalendarDayEntity day = dayRepository.findByIdAndUserId(idDay, userId)
           .orElseThrow(() -> new Exception("Dia não encontrado"));
+
     dayRepository.delete(day);
   }
 
+
+  /**
+   * Adicionar horário — só se o dia for do usuário
+   */
   @Transactional
   public CalendarTimeDTO addTime(Long idDay, CalendarTimeCreateDTO dto) {
-    CalendarDayEntity day = dayRepository.findById(idDay)
+    Long userId = AuthUtil.getAuthenticatedUserId();
+
+    CalendarDayEntity day = dayRepository.findByIdAndUserId(idDay, userId)
           .orElseThrow(() -> new RuntimeException("Dia não encontrado"));
 
     CalendarTimeEntity time = new CalendarTimeEntity();
     time.setTime(dto.getTime());
     time.setCalendarDay(day);
 
-    CalendarTimeEntity savedTime = timeRepository.save(time);
-    return mapTimeToDTO(savedTime);
+    return mapTimeToDTO(timeRepository.save(time));
   }
 
   @Transactional
   public void deleteTime(Long idDay, Long idTime) throws Exception {
+    Long userId = AuthUtil.getAuthenticatedUserId();
+
+    CalendarDayEntity day = dayRepository.findByIdAndUserId(idDay, userId)
+          .orElseThrow(() -> new Exception("Dia não encontrado"));
+
     CalendarTimeEntity time = timeRepository.findById(idTime)
           .orElseThrow(() -> new Exception("Horário não encontrado"));
 
@@ -153,18 +157,16 @@ public class CalendarService {
     timeRepository.delete(time);
   }
 
+
   private CalendarDayDTO mapToDTO(CalendarDayEntity day) {
     CalendarDayDTO dto = new CalendarDayDTO();
     dto.setId(day.getId());
     dto.setUserId(day.getUserId());
     dto.setLocalDate(day.getLocalDate());
-
-    List<CalendarTimeDTO> sortedTimes = day.getTimes().stream()
+    dto.setTimes(day.getTimes().stream()
           .sorted(Comparator.comparing(CalendarTimeEntity::getTime))
           .map(this::mapTimeToDTO)
-          .collect(Collectors.toList());
-
-    dto.setTimes(sortedTimes);
+          .toList());
     return dto;
   }
 
@@ -174,5 +176,4 @@ public class CalendarService {
     dto.setTime(time.getTime());
     return dto;
   }
-
 }
