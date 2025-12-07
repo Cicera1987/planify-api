@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,96 +34,93 @@ public class PackageService {
   @Transactional
   public PackageDTO createPackage(PackageCreateDTO dto) {
     Long ownerId = AuthUtil.getAuthenticatedUserId();
-
     UserEntity owner = userRepository.findById(ownerId)
-          .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+          .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + ownerId));
 
-    PackageEntity pkg = PackageEntity.builder()
-          .name(dto.getName())
-          .totalPrice(dto.getTotalPrice())
-          .numberSessions(dto.getNumberSessions())
-          .owner(owner)
-          .build();
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setName(dto.getName());
+    packageEntity.setTotalPrice(dto.getTotalPrice());
+    packageEntity.setNumberSessions(dto.getNumberSessions());
+    packageEntity.setOwner(owner);
+    packageEntity.setCreatedAt(LocalDateTime.now());
 
-    PackageEntity saved = packageRepository.save(pkg);
+    PackageEntity savedPackage = packageRepository.save(packageEntity);
 
     Map<Long, Long> serviceCount = dto.getServiceIds().stream()
           .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
 
-    List<PackageServiceEntity> relations = new ArrayList<>();
+    List<PackageServiceEntity> packageServices = new ArrayList<>();
+    for (Map.Entry<Long, Long> entry : serviceCount.entrySet()) {
+      TypeOfServiceEntity service = typeOfServiceRepository.findById(entry.getKey())
+            .orElseThrow(() -> new RuntimeException("Serviço não encontrado com id: " + entry.getKey()));
 
-    for (var entry : serviceCount.entrySet()) {
-      TypeOfServiceEntity service = typeOfServiceRepository
-            .findByIdAndOwnerId(entry.getKey(), ownerId)
-            .orElseThrow(() -> new RuntimeException("Serviço não encontrado ou não pertence ao usuário."));
+      PackageServiceEntity ps = new PackageServiceEntity();
+      ps.setPackageEntity(savedPackage);
+      ps.setService(service);
+      ps.setQuantity(entry.getValue().intValue());
 
-      relations.add(PackageServiceEntity.builder()
-            .packageEntity(saved)
-            .service(service)
-            .quantity(entry.getValue().intValue())
-            .build());
+      packageServices.add(ps);
     }
 
-    packageServiceRepository.saveAll(relations);
+    packageServiceRepository.saveAll(packageServices);
 
-    return mapToDTO(saved);
+    return mapToDTO(savedPackage);
   }
 
   @Transactional(readOnly = true)
   public List<PackageDTO> listPackagesByOwner() {
     Long ownerId = AuthUtil.getAuthenticatedUserId();
-    return packageRepository.findByOwnerId(ownerId)
-          .stream()
-          .map(this::mapToDTO)
-          .toList();
+
+    List<PackageEntity> packages = packageRepository.findByOwnerId(ownerId);
+    List<PackageDTO> dtoList = new ArrayList<>();
+
+    for (PackageEntity pkg : packages) {
+      dtoList.add(mapToDTO(pkg));
+    }
+    return dtoList;
   }
 
   @Transactional
   public PackageDTO updatePackage(Long id, PackageCreateDTO dto) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
+    PackageEntity packageEntity = packageRepository.findById(id)
+          .orElseThrow(() -> new RuntimeException("Pacote não encontrado"));
 
-    PackageEntity pkg = packageRepository.findByIdAndOwnerId(id, ownerId)
-          .orElseThrow(() -> new RuntimeException("Pacote não encontrado ou não pertence ao usuário."));
+    packageEntity.setName(dto.getName());
+    packageEntity.setTotalPrice(dto.getTotalPrice());
+    packageEntity.setNumberSessions(dto.getNumberSessions());
 
-    pkg.setName(dto.getName());
-    pkg.setTotalPrice(dto.getTotalPrice());
-    pkg.setNumberSessions(dto.getNumberSessions());
+    List<PackageServiceEntity> oldServices = packageServiceRepository.findByPackageEntityId(id);
+    packageServiceRepository.deleteAll(oldServices);
 
-    // Remove serviços antigos (orphanRemoval já faz, mas você limpou o repositório)
-    packageServiceRepository.deleteByPackageEntityId(pkg.getId());
-
-    // Monta os novos
     Map<Long, Long> serviceCount = dto.getServiceIds().stream()
-          .collect(Collectors.groupingBy(serviceId -> serviceId, Collectors.counting()));
+          .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
 
-    List<PackageServiceEntity> newRelations = new ArrayList<>();
+    List<PackageServiceEntity> newServices = new ArrayList<>();
+    for (Map.Entry<Long, Long> entry : serviceCount.entrySet()) {
+      TypeOfServiceEntity service = typeOfServiceRepository.findById(entry.getKey())
+            .orElseThrow(() -> new RuntimeException("Serviço não encontrado com id: " + entry.getKey()));
 
-    for (var entry : serviceCount.entrySet()) {
-      TypeOfServiceEntity service = typeOfServiceRepository
-            .findByIdAndOwnerId(entry.getKey(), ownerId)
-            .orElseThrow(() -> new RuntimeException("Serviço não encontrado ou não pertence ao usuário."));
+      PackageServiceEntity ps = new PackageServiceEntity();
+      ps.setPackageEntity(packageEntity);
+      ps.setService(service);
+      ps.setQuantity(entry.getValue().intValue());
 
-      newRelations.add(PackageServiceEntity.builder()
-            .packageEntity(pkg)
-            .service(service)
-            .quantity(entry.getValue().intValue())
-            .build());
+      newServices.add(ps);
     }
+    packageServiceRepository.saveAll(newServices);
 
-    packageServiceRepository.saveAll(newRelations);
-
-    return mapToDTO(pkg);
+    return mapToDTO(packageEntity);
   }
 
   @Transactional
   public void deletePackage(Long id) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
+    PackageEntity packageEntity = packageRepository.findById(id)
+          .orElseThrow(() -> new RuntimeException("Pacote não encontrado"));
 
-    PackageEntity pkg = packageRepository.findByIdAndOwnerId(id, ownerId)
-          .orElseThrow(() -> new RuntimeException("Pacote não encontrado ou não pertence ao usuário."));
+    List<PackageServiceEntity> packageServices = packageServiceRepository.findByPackageEntityId(id);
+    packageServiceRepository.deleteAll(packageServices);
 
-    packageServiceRepository.deleteByPackageEntityId(pkg.getId());
-    packageRepository.delete(pkg);
+    packageRepository.delete(packageEntity);
   }
 
   private PackageDTO mapToDTO(PackageEntity entity) {
@@ -134,24 +132,21 @@ public class PackageService {
     dto.setOwnerId(entity.getOwner().getId());
     dto.setCreatedAt(entity.getCreatedAt());
 
-    List<PackageServiceEntity> relations = packageServiceRepository.findByPackageEntityId(entity.getId());
+    List<PackageServiceEntity> packageServices = packageServiceRepository.findByPackageEntityId(entity.getId());
 
-    dto.setServices(relations.stream().map(ps -> {
-      TypeOfServiceEntity s = ps.getService();
-
+    dto.setServices(packageServices.stream().map(ps -> {
       TypeOfServiceDTO serviceDto = new TypeOfServiceDTO();
-      serviceDto.setId(s.getId());
-      serviceDto.setName(s.getName());
-      serviceDto.setDescription(s.getDescription());
-      serviceDto.setPrice(s.getPrice());
-      serviceDto.setCategory(s.getCategory());
-      serviceDto.setDuration(s.getDuration());
-      serviceDto.setOwnerId(s.getOwner().getId());
-      serviceDto.setCreatedAt(s.getCreatedAt());
+      serviceDto.setId(ps.getService().getId());
+      serviceDto.setName(ps.getService().getName());
+      serviceDto.setDescription(ps.getService().getDescription());
+      serviceDto.setPrice(ps.getService().getPrice());
+      serviceDto.setCategory(ps.getService().getCategory());
+      serviceDto.setDuration(ps.getService().getDuration());
+      serviceDto.setOwnerId(ps.getService().getOwner().getId());
+      serviceDto.setCreatedAt(ps.getService().getCreatedAt());
       serviceDto.setQuantity(ps.getQuantity());
-
       return serviceDto;
-    }).toList());
+    }).collect(Collectors.toList()));
 
     return dto;
   }

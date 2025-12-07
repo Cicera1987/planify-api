@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PackageRepository extends JpaRepository<PackageEntity, Long> {
   List<PackageEntity> findByOwnerId(Long ownerId);
+  Optional<Package> findByIdAndOwnerId(Long id, Long ownerId);
 }
