@@ -1,8 +1,6 @@
 package com.tcc.planify_api.security;
 
-import com.tcc.planify_api.entity.PositionEntity;
 import com.tcc.planify_api.entity.UserEntity;
-import com.tcc.planify_api.repository.PositionRepository;
 import com.tcc.planify_api.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
