@@ -33,14 +33,19 @@ public class ContactService {
   private final ImageProviderService imageProviderService;
 
   public PageDTO<ContactDTO> getContacts(Pageable pageable) {
-    Page<ContactEntity> page = contactRepository.findAll(pageable);
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
+
+    Page<ContactEntity> page = contactRepository.findByProfessionalId(professionalId, pageable);
+
     return PaginationUtil.toPageResponse(page, this::toDTO, versionProvider.getVersion());
   }
+
 
   public PageDTO<ContactDTO> searchContacts(String name, Pageable pageable) {
     Long professionalId = AuthUtil.getAuthenticatedUserId();
 
     Page<ContactEntity> page = contactRepository.findByProfessionalIdAndNameContainingIgnoreCase(professionalId, name, pageable);
+
     return PaginationUtil.toPageResponse(page, this::toDTO, versionProvider.getVersion());
   }
 
@@ -88,7 +93,8 @@ public class ContactService {
 
   @Transactional
   public ContactDTO updateContact(Long id, ContactCreateDTO dto) throws Exception {
-    ContactEntity entity = contactRepository.findById(id)
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
+    ContactEntity entity = contactRepository.findByIdAndProfessionalId(id, professionalId)
           .orElseThrow(() -> new Exception("Contato não encontrado"));
 
     entity.setName(dto.getName());
@@ -118,7 +124,8 @@ public class ContactService {
 
 
   public void deleteContact(Long id) {
-    contactRepository.deleteById(id);
+    Long professionalId = AuthUtil.getAuthenticatedUserId();
+    contactRepository.deleteByIdAndProfessionalId(id, professionalId);
   }
 
   private ContactDTO toDTO(ContactEntity entity) {

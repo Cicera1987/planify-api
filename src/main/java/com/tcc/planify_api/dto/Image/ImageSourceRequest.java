@@ -15,4 +15,13 @@ public class ImageSourceRequest {
   private String externalUrl;
   private String provider;
   private String providerUserId;
+
+  public boolean hasValidSource() {
+    return file != null || (externalUrl != null && !externalUrl.isBlank());
+  }
+
+  public boolean isAmbiguous() {
+    return file != null && externalUrl != null;
+  }
+
 }

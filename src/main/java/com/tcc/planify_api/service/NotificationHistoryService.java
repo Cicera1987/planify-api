@@ -56,5 +56,4 @@ public class NotificationHistoryService {
     List<NotificationEntity> list = notificationRepository.findByContact_IdOrderByCreatedAtDesc(contactId);
     notificationRepository.deleteAll(list);
   }
-
 }
