@@ -21,13 +21,12 @@ public class TypeOfServicesService {
   private final TypeOfServiceRepository repository;
   private final UserRepository userRepository;
 
-  // CREATE
   @Transactional
   public TypeOfServiceDTO createService(TypeOfServiceCreateDTO dto) {
     Long ownerId = AuthUtil.getAuthenticatedUserId();
 
     UserEntity owner = userRepository.findById(ownerId)
-          .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+          .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com id: " + ownerId));
 
     TypeOfServiceEntity entity = TypeOfServiceEntity.builder()
           .name(dto.getName())
@@ -38,16 +37,14 @@ public class TypeOfServicesService {
           .owner(owner)
           .build();
 
-    return mapToDTO(repository.save(entity));
+    TypeOfServiceEntity saved = repository.save(entity);
+    return mapToDTO(saved);
   }
 
-  // UPDATE
   @Transactional
   public TypeOfServiceDTO updateService(Long id, TypeOfServiceCreateDTO dto) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
-
-    TypeOfServiceEntity entity = repository.findByIdAndOwnerId(id, ownerId)
-          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+    TypeOfServiceEntity entity = repository.findById(id)
+          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado com id: " + id));
 
     if (dto.getName() != null) entity.setName(dto.getName());
     if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
@@ -55,51 +52,37 @@ public class TypeOfServicesService {
     if (dto.getCategory() != null) entity.setCategory(dto.getCategory());
     if (dto.getDuration() != null) entity.setDuration(dto.getDuration());
 
-    return mapToDTO(repository.save(entity));
+    TypeOfServiceEntity updated = repository.save(entity);
+    return mapToDTO(updated);
   }
 
-  // GET BY ID
   @Transactional(readOnly = true)
   public TypeOfServiceDTO getServiceById(Long id) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
-
-    TypeOfServiceEntity entity = repository.findByIdAndOwnerId(id, ownerId)
-          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
-
+    TypeOfServiceEntity entity = repository.findById(id)
+          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado com id: " + id));
     return mapToDTO(entity);
   }
 
-  // LIST ALL DO USER
   @Transactional(readOnly = true)
   public List<TypeOfServiceDTO> getAllServices() {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
-
-    return repository.findByOwnerId(ownerId)
-          .stream()
+    return repository.findAll().stream()
           .map(this::mapToDTO)
-          .toList();
+          .collect(Collectors.toList());
   }
 
-  // SEARCH (do user!)
   @Transactional(readOnly = true)
   public List<TypeOfServiceDTO> searchByName(String name) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
-
-    return repository.findByOwnerIdAndNameContainingIgnoreCase(ownerId, name)
-          .stream()
+    return repository.findByNameContainingIgnoreCase(name).stream()
           .map(this::mapToDTO)
-          .toList();
+          .collect(Collectors.toList());
   }
 
-  // DELETE
   @Transactional
   public void deleteService(Long id) {
-    Long ownerId = AuthUtil.getAuthenticatedUserId();
-
-    TypeOfServiceEntity entity = repository.findByIdAndOwnerId(id, ownerId)
-          .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
-
-    repository.delete(entity);
+    if (!repository.existsById(id)) {
+      throw new IllegalArgumentException("Serviço não encontrado com id: " + id);
+    }
+    repository.deleteById(id);
   }
 
   private TypeOfServiceDTO mapToDTO(TypeOfServiceEntity entity) {
@@ -115,3 +98,4 @@ public class TypeOfServicesService {
     return dto;
   }
 }
+

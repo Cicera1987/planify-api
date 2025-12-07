@@ -1,14 +1,8 @@
 package com.tcc.planify_api.dto.calendar;
-import lombok.*;
-
+import lombok.Data;
 import java.time.LocalTime;
 
 @Data
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class CalendarTimeDTO {
   private Long id;
   private LocalTime time;

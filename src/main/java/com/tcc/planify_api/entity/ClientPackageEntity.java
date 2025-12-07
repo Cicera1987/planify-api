@@ -18,10 +18,12 @@ public class ClientPackageEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // Pacote vinculado ao cliente
   @ManyToOne
   @JoinColumn(name = "package_id", nullable = false)
   private PackageEntity packageEntity;
 
+  // Contato/cliente que recebeu o pacote
   @ManyToOne
   @JoinColumn(name = "contact_id", nullable = false)
   private ContactEntity contact;
@@ -29,6 +31,7 @@ public class ClientPackageEntity {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
+  // Lista de serviços do pacote para este cliente
   @OneToMany(mappedBy = "clientPackage", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ClientPackageServiceEntity> services = new ArrayList<>();
 

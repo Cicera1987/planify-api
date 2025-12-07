@@ -17,18 +17,12 @@ public class AuthenticationService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    var user = userRepository.findByUsername(username)
+    return userRepository.findByUsername(username)
           .orElseThrow(() -> new UsernameNotFoundException("Usuário Inválido!"));
-
-    return new CustomUserPrincipal(
-          user.getId(),
-          user.getUsername(),
-          user.getPassword(),
-          user.getAuthorities()
-    );
   }
 
   public void logout() {
     SecurityContextHolder.clearContext();
   }
 }
+
