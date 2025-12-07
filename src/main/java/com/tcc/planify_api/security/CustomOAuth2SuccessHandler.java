@@ -1,6 +1,8 @@
 package com.tcc.planify_api.security;
 
+import com.tcc.planify_api.entity.PositionEntity;
 import com.tcc.planify_api.entity.UserEntity;
+import com.tcc.planify_api.repository.PositionRepository;
 import com.tcc.planify_api.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +54,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     String picture = (String) attributes.get("picture");
 
     UserEntity user = userService.findOrCreateByEmail(email, name, picture);
+
     String jwt = tokenService.generateToken(user);
 
     String activeProfile = environment.getProperty("spring.profiles.active", "dev");

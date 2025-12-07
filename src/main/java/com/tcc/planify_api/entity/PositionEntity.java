@@ -32,6 +32,6 @@ public class PositionEntity implements GrantedAuthority {
 
   @Override
   public String getAuthority() {
-    return position.name();
+    return "ROLE_" + position.name();
   }
 }

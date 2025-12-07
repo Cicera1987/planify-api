@@ -1,6 +1,7 @@
 package com.tcc.planify_api.repository;
 
 import com.tcc.planify_api.entity.PackageEntity;
+import com.tcc.planify_api.entity.PositionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
