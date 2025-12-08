@@ -9,6 +9,11 @@ import java.util.Optional;
 
 @Repository
 public interface TypeOfServiceRepository extends JpaRepository<TypeOfServiceEntity, Long> {
-  List<TypeOfServiceEntity> findByNameContainingIgnoreCase(String name);
-  Optional<Package> findByIdAndOwnerId(Long id, Long ownerId);
+
+  List<TypeOfServiceEntity> findByOwnerId(Long ownerId);
+
+  Optional<TypeOfServiceEntity> findByIdAndOwnerId(Long id, Long ownerId);
+
+  List<TypeOfServiceEntity> findByOwnerIdAndNameContainingIgnoreCase(Long ownerId, String name);
+
 }
